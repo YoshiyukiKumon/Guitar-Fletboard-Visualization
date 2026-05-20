@@ -115,7 +115,7 @@ function createTonePanel(model: FretboardModel): HTMLElement {
   scaleBlock.appendChild(
     createToneLines(
       model.scale.tones.join(' · '),
-      noteNamesFromTones(model.scaleKey, model.scale.tones),
+      noteNamesFromTones(model.scaleKey, model.scale.tones, model.scaleKey),
     ),
   );
   tones.appendChild(scaleBlock);
@@ -132,7 +132,7 @@ function createTonePanel(model: FretboardModel): HTMLElement {
   chordBlock.appendChild(
     createToneLines(
       model.chord.tones.join(' · '),
-      noteNamesFromTones(model.chordKey, model.chord.tones),
+      noteNamesFromTones(model.chordKey, model.chord.tones, model.scaleKey),
     ),
   );
   tones.appendChild(chordBlock);

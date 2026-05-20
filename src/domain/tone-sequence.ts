@@ -59,10 +59,15 @@ export function formatScaleChordSummary(
 export function noteNamesFromTones(
   rootKey: KeyDef,
   tones: readonly string[],
+  notationScaleKey?: KeyDef,
 ): string {
+  const spellingKey = notationScaleKey ?? rootKey;
   return orderedSemitonesFromTones(tones)
     .map((semitone) =>
-      noteNameForPitchClass((rootKey.pitchClass + semitone) % 12),
+      noteNameForPitchClass(
+        (rootKey.pitchClass + semitone) % 12,
+        spellingKey,
+      ),
     )
     .join(' · ');
 }

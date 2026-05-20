@@ -46,7 +46,6 @@ export function buildFretboard(
 ): FretboardModel {
   const scaleSemitones = semitonesFromTones(scale.tones);
   const chordSemitones = semitonesFromTones(chord.tones);
-
   const strings = FRETBOARD_MATRIX.map((row, stringIndex) => {
     const frets: FretCell[] = [];
     for (let fret = 0; fret <= MAX_FRET; fret++) {
@@ -59,7 +58,7 @@ export function buildFretboard(
         stringIndex,
         fret,
         intervalLabel,
-        noteName: noteNameForPitchClass(pitchClass),
+        noteName: noteNameForPitchClass(pitchClass, scaleKey),
         scaleSemitone,
         chordSemitone,
         inScale: scaleSemitones.has(scaleSemitone),

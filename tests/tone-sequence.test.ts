@@ -39,6 +39,20 @@ describe('display names', () => {
       'C · D · E · F · G · A · B',
     );
   });
+
+  it('lists key-aware note names for Bb major', () => {
+    const keyBb = KEYS.find((k) => k.id === 'Bb')!;
+    expect(noteNamesFromTones(keyBb, MVP_SCALE.tones, keyBb)).toBe(
+      'Bb · C · D · Eb · F · G · A',
+    );
+  });
+
+  it('uses E# for F# major scale', () => {
+    const keyFSharp = KEYS.find((k) => k.id === 'F#')!;
+    expect(noteNamesFromTones(keyFSharp, MVP_SCALE.tones, keyFSharp)).toBe(
+      'F# · G# · A# · B · C# · D# · E#',
+    );
+  });
 });
 
 describe('midiNoteNumber', () => {

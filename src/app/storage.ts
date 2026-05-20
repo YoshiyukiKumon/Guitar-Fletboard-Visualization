@@ -1,5 +1,5 @@
 import { isChordId, MVP_CHORD } from '../domain/data/chords';
-import { isKeyId, MVP_KEY } from '../domain/data/keys';
+import { isKeyId, MVP_KEY, normalizeKeyId } from '../domain/data/keys';
 import { isScaleId, MVP_SCALE } from '../domain/data/scales';
 import {
   type FretboardViewMode,
@@ -52,19 +52,21 @@ export function loadSettings(): AppSettings {
       showChordLegend?: boolean;
     };
 
-    const legacyKeyId =
+    const legacyKeyId = normalizeKeyId(
       parsed.scaleKeyId && isKeyId(parsed.scaleKeyId)
         ? parsed.scaleKeyId
         : parsed.keyId && isKeyId(parsed.keyId)
           ? parsed.keyId
-          : DEFAULT_SETTINGS.scaleKeyId;
+          : DEFAULT_SETTINGS.scaleKeyId,
+    );
 
-    const chordKeyId =
+    const chordKeyId = normalizeKeyId(
       parsed.chordKeyId && isKeyId(parsed.chordKeyId)
         ? parsed.chordKeyId
         : parsed.keyId && isKeyId(parsed.keyId)
           ? parsed.keyId
-          : DEFAULT_SETTINGS.chordKeyId;
+          : DEFAULT_SETTINGS.chordKeyId,
+    );
 
     return {
       viewMode:
