@@ -1,7 +1,10 @@
 import { tonePlayer } from '../audio/tone-player';
 import type { FretCell, FretboardModel } from '../domain/fretboard';
 import { MAX_FRET } from '../domain/data/fretboard-matrix';
-import { inlayDotCount } from '../domain/fret-inlays';
+import {
+  FRET_INLAY_POSITIONS,
+  inlayDotCount,
+} from '../domain/fret-inlays';
 import {
   displayLabelForCell,
   type LabelDisplayMode,
@@ -38,9 +41,8 @@ export function renderFretboard(
   const inlayLayer = document.createElement('div');
   inlayLayer.className = 'fretboard__inlays';
   inlayLayer.setAttribute('aria-hidden', 'true');
-  inlayLayer.appendChild(createInlaySpacer());
-  for (let fret = 1; fret <= MAX_FRET; fret++) {
-    inlayLayer.appendChild(createInlayColumn(fret));
+  for (const fret of FRET_INLAY_POSITIONS) {
+    inlayLayer.appendChild(createInlayMarker(fret));
   }
   grid.appendChild(inlayLayer);
 
@@ -95,34 +97,25 @@ function createHeadCell(text: string): HTMLElement {
   return el;
 }
 
-function createInlaySpacer(): HTMLElement {
-  const el = document.createElement('div');
-  el.className = 'fretboard__inlay-cell';
-  return el;
-}
-
-function createInlayColumn(fret: number): HTMLElement {
-  const cell = document.createElement('div');
-  cell.className = 'fretboard__inlay-cell';
+/**
+ * フレット N の目印はフレット (N-1) と N の間（N 列目の中央）。
+ * 列番号: 1=弦ラベル, 2=ナット, 3=1フレット … → N フレットは 2+N 列目。
+ */
+function createInlayMarker(fret: number): HTMLElement {
+  const marker = document.createElement('div');
+  marker.className = 'fretboard__inlay-marker';
+  if (inlayDotCount(fret) === 2) {
+    marker.classList.add('fretboard__inlay-marker--double');
+  }
+  marker.style.gridColumn = String(2 + fret);
 
   const count = inlayDotCount(fret);
-  if (count === 0) {
-    return cell;
-  }
-
-  const wrap = document.createElement('div');
-  wrap.className =
-    count === 2
-      ? 'fretboard__inlay-dots fretboard__inlay-dots--double'
-      : 'fretboard__inlay-dots';
-
   for (let i = 0; i < count; i++) {
     const dot = document.createElement('span');
     dot.className = 'fretboard__inlay-dot';
-    wrap.appendChild(dot);
+    marker.appendChild(dot);
   }
-  cell.appendChild(wrap);
-  return cell;
+  return marker;
 }
 
 function createOpenIntersection(

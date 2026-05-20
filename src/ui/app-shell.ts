@@ -75,12 +75,16 @@ export function renderApp(
   controls.appendChild(
     createViewSwitcher(settings.viewMode, options.onViewModeChange),
   );
-  controls.appendChild(
+
+  const toolsRow = document.createElement('div');
+  toolsRow.className = 'app-controls__tools';
+  toolsRow.appendChild(
     createLabelModeSwitcher(settings.labelMode, options.onLabelModeChange),
   );
-  controls.appendChild(
+  toolsRow.appendChild(
     createVolumeControl(settings.volume, options.onVolumeChange),
   );
+  controls.appendChild(toolsRow);
   root.appendChild(controls);
 
   root.appendChild(createLegend(settings.viewMode));
@@ -228,7 +232,7 @@ function createViewSwitcher(
   activeMode: FretboardViewMode,
   onChange: (mode: FretboardViewMode) => void,
 ): HTMLElement {
-  return createSegmentSwitcher({
+  const nav = createSegmentSwitcher({
     className: 'segment-switcher view-switcher',
     ariaLabel: '指板表示モード',
     modes: FRETBOARD_VIEW_MODES,
@@ -236,6 +240,12 @@ function createViewSwitcher(
     active: activeMode,
     onChange,
   });
+
+  const title = document.createElement('span');
+  title.className = 'view-switcher__title';
+  title.textContent = '表示';
+  nav.prepend(title);
+  return nav;
 }
 
 function createLabelModeSwitcher(
@@ -255,12 +265,6 @@ function createLabelModeSwitcher(
 function createLegend(viewMode: FretboardViewMode): HTMLElement {
   const legend = document.createElement('div');
   legend.className = 'legend';
-
-  const inlayItem = document.createElement('span');
-  inlayItem.className = 'legend__item';
-  inlayItem.innerHTML =
-    '<span class="legend__dot"></span>フレット目印（3・5・7…）';
-  legend.appendChild(inlayItem);
 
   if (
     viewMode === 'fretboard' ||

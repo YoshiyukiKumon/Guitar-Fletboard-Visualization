@@ -56,8 +56,14 @@ async function runChecks(page) {
   assert((await scaleKeySelect.inputValue()) === 'C', 'default scale key should be C');
   assert((await chordKeySelect.inputValue()) === 'C', 'default chord key should be C');
 
+  const viewTitle = page.locator('.view-switcher__title');
+  assert((await viewTitle.textContent()) === '表示', 'view switcher title should be 表示');
+
   const viewTabs = page.locator('.view-switcher .segment-switcher__btn');
   assert((await viewTabs.count()) === 4, 'expected 4 view mode tabs');
+
+  const toolsRow = page.locator('.app-controls__tools');
+  assert((await toolsRow.count()) === 1, 'label and volume should share one row');
 
   const labelTabs = page.locator('.label-switcher .segment-switcher__btn');
   assert((await labelTabs.count()) === 2, 'expected 2 label mode tabs');
@@ -134,6 +140,50 @@ async function runChecks(page) {
   const inlayDots = page.locator('.fretboard__inlay-dot');
   assert((await inlayDots.count()) === 10, `inlay dots: ${await inlayDots.count()}`);
 
+  const inlayAlignment = await page.evaluate(() => {
+    const headCells = [...document.querySelectorAll('.fretboard__head-cell--fret')];
+    const markers = [...document.querySelectorAll('.fretboard__inlay-marker')];
+    const cellMid = (fret) => {
+      const cell = headCells[fret - 1];
+      const r = cell.getBoundingClientRect();
+      return (r.left + r.right) / 2;
+    };
+    const markerCx = (marker) => {
+      const r = marker.getBoundingClientRect();
+      return r.x + r.width / 2;
+    };
+    const checks = markers.map((marker) => {
+      const col = Number(marker.style.gridColumn);
+      const fret = col - 2;
+      const mid = cellMid(fret);
+      const cx = markerCx(marker);
+      return { fret, cx, mid, delta: Math.abs(cx - mid) };
+    });
+    const nums = [...document.querySelectorAll(
+      '.fretboard__head-cell--fret .fretboard__fret-num',
+    )].map((el) => ({
+      text: el.textContent,
+      cx: el.getBoundingClientRect().x + el.getBoundingClientRect().width / 2,
+    }));
+    const inlay3 = markers.find((m) => Number(m.style.gridColumn) === 5);
+    const f2 = nums.find((n) => n.text === '2');
+    const f3 = nums.find((n) => n.text === '3');
+    const cx3 = inlay3 ? markerCx(inlay3) : null;
+    return { checks, cx3, f2cx: f2?.cx, f3cx: f3?.cx };
+  });
+  assert(inlayAlignment.checks.length === 9, 'expected 9 inlay markers');
+  for (const row of inlayAlignment.checks) {
+    assert(
+      row.delta < 1,
+      `fret ${row.fret} inlay should match column center (delta ${row.delta}px)`,
+    );
+  }
+  assert(
+    inlayAlignment.cx3 > inlayAlignment.f2cx &&
+      inlayAlignment.cx3 < inlayAlignment.f3cx,
+    `fret 3 inlay should be between fret 2 and 3 wires (${inlayAlignment.cx3} vs ${inlayAlignment.f2cx}-${inlayAlignment.f3cx})`,
+  );
+
   const lastOpen = page.locator('.fretboard__intersection--open').nth(5);
   const firstInlayDot = inlayDots.first();
   const lastOpenBox = await lastOpen.boundingBox();
@@ -206,7 +256,7 @@ async function runChecks(page) {
   const intervalCapsule = page.locator('.interval-capsule--root').first();
   assert((await intervalCapsule.textContent()) === 'R', 'interval mode should show R');
 
-  await page.locator('.view-switcher .segment-switcher__btn', { hasText: '指板ビュー' }).click();
+  await page.locator('.view-switcher .segment-switcher__btn', { hasText: '指板' }).click();
   const fretboardRootCount = await page.locator('.interval-capsule--root').count();
   const fretboardScaleCount = await page.locator('.interval-capsule--scale').count();
   const fretboardChordCount = await page.locator('.interval-capsule--chord').count();
@@ -216,17 +266,17 @@ async function runChecks(page) {
   assert(fretboardChordCount === 0, 'fretboard view should not show chord capsules');
   assert(fretboardMutedCount === 0, 'fretboard view should not show muted capsules');
 
-  await page.locator('.view-switcher .segment-switcher__btn', { hasText: 'スケールビュー' }).click();
+  await page.locator('.view-switcher .segment-switcher__btn', { hasText: 'スケール' }).click();
   const scaleCount = await page.locator('.interval-capsule--scale').count();
   const scaleRootCount = await page.locator('.interval-capsule--root').count();
   assert(scaleCount > 0, 'scale view should show scale capsules');
   assert(scaleRootCount > 0, 'scale view should show red root capsules');
 
-  await page.locator('.view-switcher .segment-switcher__btn', { hasText: 'コードトーンビュー' }).click();
+  await page.locator('.view-switcher .segment-switcher__btn', { hasText: 'コード' }).click();
   const chordCount = await page.locator('.interval-capsule--chord').count();
   assert(chordCount > 0, 'chord view should show chord capsules');
 
-  await page.locator('.view-switcher .segment-switcher__btn', { hasText: '複合ビュー' }).click();
+  await page.locator('.view-switcher .segment-switcher__btn', { hasText: '複合' }).click();
   assert((await page.locator('.interval-capsule--root').count()) > 0, 'composite view roots');
 
   await scaleKeySelect.selectOption('E');
@@ -235,7 +285,7 @@ async function runChecks(page) {
   assert((await bottomOpenCap.textContent()) === 'R', '6th string open should be R for scale root E');
 
   await chordKeySelect.selectOption('A');
-  await page.locator('.view-switcher .segment-switcher__btn', { hasText: 'コードトーンビュー' }).click();
+  await page.locator('.view-switcher .segment-switcher__btn', { hasText: 'コード' }).click();
   const chordRootCapsules = page.locator('.interval-capsule--root');
   assert((await chordRootCapsules.count()) >= 6, 'chord root A should appear on multiple strings');
 

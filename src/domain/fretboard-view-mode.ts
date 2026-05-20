@@ -9,10 +9,10 @@ export const FRETBOARD_VIEW_MODES: readonly FretboardViewMode[] = [
 ] as const;
 
 export const VIEW_MODE_LABELS: Record<FretboardViewMode, string> = {
-  fretboard: '指板ビュー',
-  scale: 'スケールビュー',
-  chord: 'コードトーンビュー',
-  composite: '複合ビュー',
+  fretboard: '指板',
+  scale: 'スケール',
+  chord: 'コード',
+  composite: '複合',
 };
 
 export type CapsuleStyleKind = 'root' | 'scale' | 'chord' | 'muted';
