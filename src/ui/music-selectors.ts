@@ -1,0 +1,112 @@
+import { CHORDS } from '../domain/data/chords';
+import { KEYS } from '../domain/data/keys';
+import { SCALES } from '../domain/data/scales';
+
+export interface MusicSelectorValues {
+  scaleKeyId: string;
+  scaleId: string;
+  chordKeyId: string;
+  chordId: string;
+}
+
+export interface MusicSelectorCallbacks {
+  onScaleKeyChange: (keyId: string) => void;
+  onScaleChange: (scaleId: string) => void;
+  onChordKeyChange: (keyId: string) => void;
+  onChordChange: (chordId: string) => void;
+}
+
+export function createMusicSelectors(
+  values: MusicSelectorValues,
+  callbacks: MusicSelectorCallbacks,
+): HTMLElement {
+  const section = document.createElement('section');
+  section.className = 'music-selectors';
+  section.setAttribute('aria-label', 'キー・スケール・コード');
+
+  const scaleRow = document.createElement('div');
+  scaleRow.className = 'music-selectors__row';
+  scaleRow.appendChild(
+    createSelectField({
+      id: 'scale-key-select',
+      label: 'スケールルート',
+      items: KEYS,
+      value: values.scaleKeyId,
+      onChange: callbacks.onScaleKeyChange,
+    }),
+  );
+  scaleRow.appendChild(
+    createSelectField({
+      id: 'scale-select',
+      label: 'スケール',
+      items: SCALES,
+      value: values.scaleId,
+      onChange: callbacks.onScaleChange,
+    }),
+  );
+  section.appendChild(scaleRow);
+
+  const chordRow = document.createElement('div');
+  chordRow.className = 'music-selectors__row';
+  chordRow.appendChild(
+    createSelectField({
+      id: 'chord-key-select',
+      label: 'コードルート',
+      items: KEYS,
+      value: values.chordKeyId,
+      onChange: callbacks.onChordKeyChange,
+    }),
+  );
+  chordRow.appendChild(
+    createSelectField({
+      id: 'chord-select',
+      label: 'コード',
+      items: CHORDS,
+      value: values.chordId,
+      onChange: callbacks.onChordChange,
+    }),
+  );
+  section.appendChild(chordRow);
+
+  return section;
+}
+
+function createSelectField<T extends { id: string; name: string }>(config: {
+  id: string;
+  label: string;
+  items: readonly T[];
+  value: string;
+  onChange: (id: string) => void;
+}): HTMLElement {
+  const field = document.createElement('div');
+  field.className = 'music-selectors__field';
+
+  const label = document.createElement('label');
+  label.className = 'music-selectors__label';
+  label.htmlFor = config.id;
+  label.textContent = config.label;
+
+  const select = document.createElement('select');
+  select.id = config.id;
+  select.className = 'music-selectors__select';
+
+  for (const item of config.items) {
+    const option = document.createElement('option');
+    option.value = item.id;
+    option.textContent = item.name;
+    if (item.id === config.value) {
+      option.selected = true;
+    }
+    select.appendChild(option);
+  }
+
+  select.addEventListener('change', () => {
+    if (select.value !== config.value) {
+      config.onChange(select.value);
+    }
+  });
+
+  field.appendChild(label);
+  field.appendChild(select);
+  return field;
+}

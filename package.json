@@ -1,0 +1,23 @@
+{
+  "name": "guitar-practice",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build && npm run build:standalone",
+    "build:standalone": "mkdir -p standalone && cp dist/index.html standalone/guitar-practice.html",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "verify:ui": "node scripts/verify-ui.mjs",
+    "verify:standalone": "npm run build && node scripts/verify-ui.mjs standalone"
+  },
+  "devDependencies": {
+    "playwright": "^1.52.0",
+    "vite-plugin-singlefile": "^2.2.0",
+    "typescript": "~5.8.3",
+    "vite": "^6.3.5",
+    "vitest": "^3.2.4"
+  }
+}
