@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { midiNoteForFret } from '../src/domain/data/fretboard-matrix';
 import { MVP_CHORD } from '../src/domain/data/chords';
 import { MVP_KEY } from '../src/domain/data/keys';
 import { MVP_SCALE } from '../src/domain/data/scales';
@@ -82,4 +83,12 @@ describe('buildFretboard MVP', () => {
       );
     });
   }
+});
+
+describe('midiNoteForFret', () => {
+  it('maps open strings to standard tuning MIDI', () => {
+    expect(midiNoteForFret(0, 0)).toBe(40);
+    expect(midiNoteForFret(5, 0)).toBe(64);
+    expect(midiNoteForFret(5, 12)).toBe(76);
+  });
 });

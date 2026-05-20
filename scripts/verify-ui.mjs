@@ -78,8 +78,28 @@ async function runChecks(page) {
   const intersections = page.locator('.fretboard__intersection');
   assert((await intersections.count()) === 150, 'expected 150 intersections (6×25)');
 
-  const capsules = page.locator('.interval-capsule');
-  assert((await capsules.count()) === 150, 'expected 150 capsules');
+  const capsules = page.locator('button.interval-capsule--playable');
+  assert((await capsules.count()) === 150, 'expected 150 playable capsules');
+  assert(
+    (await capsules.first().getAttribute('aria-label'))?.includes('再生'),
+    'capsule should have play aria-label',
+  );
+
+  const hitProbe = await page.evaluate(() => {
+    const btn = document.querySelector('button.interval-capsule--root');
+    if (!btn) {
+      return null;
+    }
+    const r = btn.getBoundingClientRect();
+    const y = r.top + r.height / 2;
+    const rightX = r.left + r.width * 0.85;
+    const el = document.elementFromPoint(rightX, y);
+    return {
+      isButton: el === btn,
+      className: el?.className ?? '',
+    };
+  });
+  assert(hitProbe?.isButton === true, `right side of capsule should hit button, got ${hitProbe?.className}`);
 
   const borderRadius = await capsules.first().evaluate((el) => getComputedStyle(el).borderRadius);
   assert(

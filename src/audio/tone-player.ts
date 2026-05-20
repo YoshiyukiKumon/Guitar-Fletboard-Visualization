@@ -1,3 +1,4 @@
+import { midiNoteForFret } from '../domain/data/fretboard-matrix';
 import { midiNoteNumber, orderedSemitonesFromTones } from '../domain/tone-sequence';
 import type { ChordDef } from '../domain/data/chords';
 import type { KeyDef } from '../domain/data/keys';
@@ -6,6 +7,7 @@ import type { ScaleDef } from '../domain/data/scales';
 const SCALE_NOTE_DURATION_SEC = 0.38;
 const SCALE_NOTE_GAP_SEC = 0.04;
 const CHORD_DURATION_SEC = 1.4;
+const FRET_TAP_DURATION_SEC = 0.55;
 const PEAK_GAIN = 0.22;
 
 export class TonePlayer {
@@ -44,6 +46,13 @@ export class TonePlayer {
       this.scheduleNote(ctx, midi, time, SCALE_NOTE_DURATION_SEC);
       time += SCALE_NOTE_DURATION_SEC + SCALE_NOTE_GAP_SEC;
     }
+  }
+
+  /** 指板上の1音（タップ／クリック用。進行中のスケール再生は止めない） */
+  async playFret(stringIndex: number, fret: number): Promise<void> {
+    const ctx = await this.prepareContext();
+    const midi = midiNoteForFret(stringIndex, fret);
+    this.scheduleNote(ctx, midi, ctx.currentTime + 0.01, FRET_TAP_DURATION_SEC);
   }
 
   async playChord(chordKey: KeyDef, chord: ChordDef): Promise<void> {

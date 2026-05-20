@@ -419,7 +419,10 @@ body {
   justify-content: flex-end;
   position: relative;
   z-index: 1;
+  overflow: visible;
   border-right: 2px solid var(--color-fret-wire);
+  /* 右にはみ出すカプセルが隣マスに隠れないよう、交点はクリック透過 */
+  pointer-events: none;
 }
 
 .fretboard__intersection--nut {
@@ -440,18 +443,52 @@ body {
   pointer-events: none;
 }
 
-.interval-capsule {
-  display: inline-block;
-  position: relative;
+/*
+ * フレット線上の配置（transform なし＝Chrome でタップ領域がずれない）
+ * 幅 0 のアンカーを右端（フレット線）に置き、カプセルを中央揃え
+ */
+.fretboard__capsule-anchor {
+  width: 0;
+  height: 100%;
+  min-height: var(--string-row-height);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
+  flex-shrink: 0;
   z-index: 3;
+  pointer-events: auto;
+}
+
+.interval-capsule {
+  display: block;
+  flex-shrink: 0;
+  margin: 0;
   padding: 0.12rem 0.5rem;
+  border: none;
   border-radius: 999px;
   font-size: 0.62rem;
+  font-family: inherit;
   line-height: 1.25;
   white-space: nowrap;
-  transform: translateX(50%);
   max-width: calc(var(--fret-col-width) + 0.75rem);
   text-align: center;
+  box-sizing: border-box;
+  position: relative;
+  z-index: 4;
+  pointer-events: auto;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.interval-capsule--playable:focus-visible {
+  outline: 2px solid #b8aea3;
+  outline-offset: 2px;
+}
+
+.interval-capsule--playable:active {
+  opacity: 0.82;
 }
 
 .interval-capsule--root {

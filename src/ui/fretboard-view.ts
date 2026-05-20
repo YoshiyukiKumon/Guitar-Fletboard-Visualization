@@ -1,3 +1,4 @@
+import { tonePlayer } from '../audio/tone-player';
 import type { FretCell, FretboardModel } from '../domain/fretboard';
 import { MAX_FRET } from '../domain/data/fretboard-matrix';
 import { inlayDotCount } from '../domain/fret-inlays';
@@ -133,11 +134,7 @@ function createOpenIntersection(
   node.className =
     'fretboard__intersection fretboard__intersection--nut fretboard__intersection--open';
 
-  const capsule = document.createElement('span');
-  capsule.className = capsuleClass(cell, viewMode);
-  capsule.textContent = displayLabelForCell(cell, labelMode);
-  node.appendChild(capsule);
-
+  attachPlayableCapsule(node, cell, viewMode, labelMode);
   return node;
 }
 
@@ -149,12 +146,44 @@ function createIntersection(
   const node = document.createElement('div');
   node.className = 'fretboard__intersection';
 
-  const capsule = document.createElement('span');
-  capsule.className = capsuleClass(cell, viewMode);
-  capsule.textContent = displayLabelForCell(cell, labelMode);
-  node.appendChild(capsule);
-
+  attachPlayableCapsule(node, cell, viewMode, labelMode);
   return node;
+}
+
+function attachPlayableCapsule(
+  intersection: HTMLElement,
+  cell: FretCell,
+  viewMode: FretboardViewMode,
+  labelMode: LabelDisplayMode,
+): void {
+  const anchor = document.createElement('div');
+  anchor.className = 'fretboard__capsule-anchor';
+
+  const capsule = document.createElement('button');
+  capsule.type = 'button';
+  capsule.className = `${capsuleClass(cell, viewMode)} interval-capsule--playable`;
+  const label = displayLabelForCell(cell, labelMode);
+  capsule.textContent = label;
+  capsule.setAttribute(
+    'aria-label',
+    `${cell.noteName}（${STRING_LABEL_FOR_ARIA(cell.stringIndex)}弦 ${cell.fret} フレット）を再生`,
+  );
+
+  const play = (): void => {
+    void tonePlayer.playFret(cell.stringIndex, cell.fret);
+  };
+
+  capsule.addEventListener('click', (event) => {
+    event.stopPropagation();
+    play();
+  });
+
+  anchor.appendChild(capsule);
+  intersection.appendChild(anchor);
+}
+
+function STRING_LABEL_FOR_ARIA(stringIndex: number): number {
+  return 6 - stringIndex;
 }
 
 function capsuleClass(cell: FretCell, viewMode: FretboardViewMode): string {
