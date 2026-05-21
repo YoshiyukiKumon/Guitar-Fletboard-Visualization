@@ -15,7 +15,12 @@ export const VIEW_MODE_LABELS: Record<FretboardViewMode, string> = {
   composite: '複合',
 };
 
-export type CapsuleStyleKind = 'root' | 'scale' | 'chord' | 'muted';
+export type CapsuleStyleKind =
+  | 'scale-root'
+  | 'chord-root'
+  | 'scale'
+  | 'chord'
+  | 'muted';
 
 export interface CapsuleToneFlags {
   inScale: boolean;
@@ -30,20 +35,23 @@ export function resolveCapsuleStyle(
 ): CapsuleStyleKind {
   switch (mode) {
     case 'fretboard':
-      return cell.isScaleRoot ? 'root' : 'scale';
+      return cell.isScaleRoot ? 'scale-root' : 'scale';
     case 'scale':
       if (cell.isScaleRoot) {
-        return 'root';
+        return 'scale-root';
       }
       return cell.inScale ? 'scale' : 'muted';
     case 'chord':
       if (cell.isChordRoot) {
-        return 'root';
+        return 'chord-root';
       }
       return cell.inChord ? 'chord' : 'muted';
     case 'composite':
-      if (cell.isScaleRoot || cell.isChordRoot) {
-        return 'root';
+      if (cell.isScaleRoot) {
+        return 'scale-root';
+      }
+      if (cell.isChordRoot) {
+        return 'chord-root';
       }
       if (cell.inChord) {
         return 'chord';

@@ -1,4 +1,6 @@
+import { tonePlayer } from '../audio/tone-player';
 import type { ChordDef } from '../domain/data/chords';
+import { MVP_KEY } from '../domain/data/keys';
 import type { ScaleDef } from '../domain/data/scales';
 import {
   applyCustomLibraryImport,
@@ -436,7 +438,15 @@ function createDefForm(config: DefFormConfig): HTMLElement {
 
   const tonePicker = createTonePicker(config.def.tones, config.readonly);
 
+  const getPreviewDef = (): ScaleDef | ChordDef => ({
+    ...config.def,
+    id: config.def.id || '__preview__',
+    name: nameInput.value.trim() || config.def.name,
+    tones: tonePicker.getTones(),
+  });
+
   form.appendChild(createField('名前', nameInput));
+  form.appendChild(createPlaybackRow(config.kind, getPreviewDef));
   form.appendChild(createField('構成音', tonePicker.element));
   form.appendChild(errorsEl);
 
@@ -491,6 +501,63 @@ function createDefForm(config: DefFormConfig): HTMLElement {
 
   form.appendChild(actions);
   return form;
+}
+
+function createPlaybackRow(
+  kind: 'scale' | 'chord',
+  getPreviewDef: () => ScaleDef | ChordDef,
+): HTMLElement {
+  const row = document.createElement('div');
+  row.className = 'library-view__playback';
+
+  if (kind === 'scale') {
+    row.appendChild(
+      createLibraryPlayButton(
+        '▶ 再生',
+        'スケールを順番に再生（プレビュー・C ルート）',
+        () => {
+          void tonePlayer.playScale(MVP_KEY, getPreviewDef() as ScaleDef);
+        },
+      ),
+    );
+    return row;
+  }
+
+  row.appendChild(
+    createLibraryPlayButton(
+      '▶ 同時',
+      'コードトーンを同時に再生（プレビュー・C ルート）',
+      () => {
+        void tonePlayer.playChord(MVP_KEY, getPreviewDef() as ChordDef);
+      },
+    ),
+  );
+  row.appendChild(
+    createLibraryPlayButton(
+      '▶ アルペジオ',
+      'コードトーンをルートから順に再生（プレビュー・C ルート）',
+      () => {
+        void tonePlayer.playChordArpeggio(MVP_KEY, getPreviewDef() as ChordDef);
+      },
+    ),
+  );
+  return row;
+}
+
+function createLibraryPlayButton(
+  label: string,
+  ariaLabel: string,
+  onPlay: () => void,
+): HTMLButtonElement {
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'library-view__play';
+  btn.setAttribute('aria-label', ariaLabel);
+  btn.textContent = label;
+  btn.addEventListener('click', () => {
+    onPlay();
+  });
+  return btn;
 }
 
 function createField(label: string, control: HTMLElement): HTMLElement {

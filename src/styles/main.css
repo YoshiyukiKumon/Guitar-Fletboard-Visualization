@@ -1,6 +1,8 @@
 :root {
-  --color-capsule-root-bg: #b85450;
-  --color-capsule-root-text: #ffffff;
+  --color-capsule-scale-root-bg: #b85450;
+  --color-capsule-scale-root-text: #ffffff;
+  --color-capsule-chord-root-bg: #e07b39;
+  --color-capsule-chord-root-text: #ffffff;
   --color-capsule-chord-bg: #93c47d;
   --color-capsule-chord-text: #1a1a1a;
   --color-capsule-scale-bg: #ffffff;
@@ -13,8 +15,9 @@
   --color-bg: #1a1410;
   --color-board: #3d2817;
   --color-board-edge: #2a1a10;
-  --string-label-width: 2rem;
-  --nut-width: 2.5rem;
+  --string-label-width: 2.75rem;
+  /* 開放弦カプセルが弦名に重ならないよう、フレット列より広めに確保 */
+  --nut-width: calc(var(--fret-col-width) + 1.35rem);
   --fret-col-width: 3.1rem;
   --string-row-height: 1.425rem;
   --inlay-row-height: 1.1rem;
@@ -314,9 +317,14 @@ body {
   line-height: 1.2;
 }
 
-.legend__capsule--root {
-  background: var(--color-capsule-root-bg);
-  color: var(--color-capsule-root-text);
+.legend__capsule--scale-root {
+  background: var(--color-capsule-scale-root-bg);
+  color: var(--color-capsule-scale-root-text);
+}
+
+.legend__capsule--chord-root {
+  background: var(--color-capsule-chord-root-bg);
+  color: var(--color-capsule-chord-root-text);
 }
 
 .legend__capsule--scale {
@@ -470,23 +478,28 @@ body {
   font-size: 0.8rem;
   font-weight: 700;
   color: #f5f0eb;
+  padding-right: 0.15rem;
 }
 
 .fretboard__intersection {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  /* N フレットの音は (N-1) と N の間＝当該列の中央（ポジションガイドと同じ） */
+  justify-content: center;
   position: relative;
   z-index: 1;
   overflow: visible;
   border-right: 2px solid var(--color-fret-wire);
-  /* 右にはみ出すカプセルが隣マスに隠れないよう、交点はクリック透過 */
   pointer-events: none;
 }
 
 .fretboard__intersection--nut {
   border-right-width: 3px;
   border-right-color: var(--color-nut);
+}
+
+.fretboard__intersection--open .interval-capsule {
+  max-width: calc(var(--nut-width) - 0.4rem);
 }
 
 /* 弦（横線）— ナット列から指板右端まで */
@@ -503,8 +516,8 @@ body {
 }
 
 /*
- * フレット線上の配置（transform なし＝Chrome でタップ領域がずれない）
- * 幅 0 のアンカーを右端（フレット線）に置き、カプセルを中央揃え
+ * フレット間の配置（transform なし＝Chrome でタップ領域がずれない）
+ * 幅 0 のアンカーを列中央に置き、カプセルを中央揃え（インレイ目印と同じ考え方）
  */
 .fretboard__capsule-anchor {
   width: 0;
@@ -550,9 +563,15 @@ body {
   opacity: 0.82;
 }
 
-.interval-capsule--root {
-  background: var(--color-capsule-root-bg);
-  color: var(--color-capsule-root-text);
+.interval-capsule--scale-root {
+  background: var(--color-capsule-scale-root-bg);
+  color: var(--color-capsule-scale-root-text);
+  font-weight: 700;
+}
+
+.interval-capsule--chord-root {
+  background: var(--color-capsule-chord-root-bg);
+  color: var(--color-capsule-chord-root-text);
   font-weight: 700;
 }
 
@@ -610,6 +629,18 @@ body {
   margin-bottom: 0.35rem;
 }
 
+.tone-panel__head--chord {
+  align-items: flex-start;
+}
+
+.tone-panel__head-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.35rem 0.5rem;
+}
+
 .tone-panel__heading {
   margin: 0;
   font-size: 0.85rem;
@@ -664,8 +695,8 @@ body {
     --inlay-row-height: 1rem;
     --inlay-gap: 0.3rem;
     --inlay-dot-size: 0.45rem;
-    --string-label-width: 1.75rem;
-    --nut-width: 2.15rem;
+    --string-label-width: 2.1rem;
+    --nut-width: calc(var(--fret-col-width) + 1.1rem);
   }
 
   .interval-capsule {
@@ -774,6 +805,34 @@ body {
   display: flex;
   flex-direction: column;
   gap: 0.65rem;
+}
+
+.library-view__playback {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.5rem;
+}
+
+.library-view__play {
+  flex-shrink: 0;
+  border: 1px solid #6a5a4a;
+  border-radius: 999px;
+  padding: 0.25rem 0.65rem;
+  font-size: 0.75rem;
+  font-family: inherit;
+  color: #f5f0eb;
+  background: #4a3220;
+  cursor: pointer;
+}
+
+.library-view__play:hover {
+  border-color: #8a7058;
+  background: #5c4033;
+}
+
+.library-view__play:focus-visible {
+  outline: 2px solid #b8aea3;
+  outline-offset: 2px;
 }
 
 .library-view__field {

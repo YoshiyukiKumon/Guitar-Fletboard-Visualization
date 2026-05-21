@@ -165,10 +165,10 @@ function createTonePanel(model: FretboardModel): HTMLElement {
   const chordBlock = document.createElement('div');
   chordBlock.className = 'tone-panel__block';
   chordBlock.appendChild(
-    createToneBlockHeader(
+    createChordToneBlockHeader(
       formatChordName(model.chordKey, model.chord, model.scaleKey),
-      'コードトーンを同時に再生',
       () => tonePlayer.playChord(model.chordKey, model.chord),
+      () => tonePlayer.playChordArpeggio(model.chordKey, model.chord),
     ),
   );
   chordBlock.appendChild(
@@ -202,6 +202,56 @@ function createToneLines(
   return wrap;
 }
 
+function createChordToneBlockHeader(
+  title: string,
+  onBlockPlay: () => void,
+  onArpeggioPlay: () => void,
+): HTMLElement {
+  const head = document.createElement('div');
+  head.className = 'tone-panel__head tone-panel__head--chord';
+
+  const heading = document.createElement('h2');
+  heading.className = 'tone-panel__heading';
+  heading.textContent = title;
+
+  const actions = document.createElement('div');
+  actions.className = 'tone-panel__head-actions';
+  actions.appendChild(
+    createTonePlayButton(
+      '▶ 同時',
+      'コードトーンを同時に再生',
+      onBlockPlay,
+    ),
+  );
+  actions.appendChild(
+    createTonePlayButton(
+      '▶ アルペジオ',
+      'コードトーンをルートから順に再生（アルペジオ）',
+      onArpeggioPlay,
+    ),
+  );
+
+  head.appendChild(heading);
+  head.appendChild(actions);
+  return head;
+}
+
+function createTonePlayButton(
+  label: string,
+  ariaLabel: string,
+  onPlay: () => void,
+): HTMLButtonElement {
+  const playBtn = document.createElement('button');
+  playBtn.type = 'button';
+  playBtn.className = 'tone-panel__play';
+  playBtn.setAttribute('aria-label', ariaLabel);
+  playBtn.textContent = label;
+  playBtn.addEventListener('click', () => {
+    void onPlay();
+  });
+  return playBtn;
+}
+
 function createToneBlockHeader(
   title: string,
   playLabel: string,
@@ -214,17 +264,10 @@ function createToneBlockHeader(
   heading.className = 'tone-panel__heading';
   heading.textContent = title;
 
-  const playBtn = document.createElement('button');
-  playBtn.type = 'button';
-  playBtn.className = 'tone-panel__play';
-  playBtn.setAttribute('aria-label', playLabel);
-  playBtn.textContent = '▶ 再生';
-  playBtn.addEventListener('click', () => {
-    void onPlay();
-  });
-
   head.appendChild(heading);
-  head.appendChild(playBtn);
+  head.appendChild(
+    createTonePlayButton('▶ 再生', playLabel, onPlay),
+  );
   return head;
 }
 
@@ -290,14 +333,21 @@ function createLegend(viewMode: FretboardViewMode): HTMLElement {
   if (
     viewMode === 'fretboard' ||
     viewMode === 'scale' ||
-    viewMode === 'chord' ||
     viewMode === 'composite'
   ) {
-    const rootItem = document.createElement('span');
-    rootItem.className = 'legend__item';
-    rootItem.innerHTML =
-      '<span class="legend__capsule legend__capsule--root">R</span>ルート';
-    legend.appendChild(rootItem);
+    const scaleRootItem = document.createElement('span');
+    scaleRootItem.className = 'legend__item';
+    scaleRootItem.innerHTML =
+      '<span class="legend__capsule legend__capsule--scale-root">R</span>スケールルート';
+    legend.appendChild(scaleRootItem);
+  }
+
+  if (viewMode === 'chord' || viewMode === 'composite') {
+    const chordRootItem = document.createElement('span');
+    chordRootItem.className = 'legend__item';
+    chordRootItem.innerHTML =
+      '<span class="legend__capsule legend__capsule--chord-root">R</span>コードルート';
+    legend.appendChild(chordRootItem);
   }
 
   if (viewMode !== 'fretboard') {

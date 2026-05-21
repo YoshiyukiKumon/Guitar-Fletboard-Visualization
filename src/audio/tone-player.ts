@@ -1,4 +1,8 @@
 import { midiNoteForFret } from '../domain/data/fretboard-matrix';
+import {
+  orderedSemitonesForChordArpeggio,
+  orderedSemitonesForChordPlayback,
+} from '../domain/chord-playback';
 import { midiNoteNumber, orderedSemitonesFromTones } from '../domain/tone-sequence';
 import type { ChordDef } from '../domain/data/chords';
 import type { KeyDef } from '../domain/data/keys';
@@ -56,7 +60,27 @@ export class TonePlayer {
   }
 
   async playChord(chordKey: KeyDef, chord: ChordDef): Promise<void> {
-    const semitones = orderedSemitonesFromTones(chord.tones);
+    const semitones = orderedSemitonesForChordPlayback(
+      chord.tones,
+      chord.name,
+    );
+    await this.playChordSemitones(chordKey, semitones, 'block');
+  }
+
+  /** コードトーンをルートから順にアルペジオ再生 */
+  async playChordArpeggio(chordKey: KeyDef, chord: ChordDef): Promise<void> {
+    const semitones = orderedSemitonesForChordArpeggio(
+      chord.tones,
+      chord.name,
+    );
+    await this.playChordSemitones(chordKey, semitones, 'arpeggio');
+  }
+
+  private async playChordSemitones(
+    chordKey: KeyDef,
+    semitones: number[],
+    style: 'block' | 'arpeggio',
+  ): Promise<void> {
     if (semitones.length === 0) {
       return;
     }
@@ -65,13 +89,25 @@ export class TonePlayer {
     const session = ++this.sessionId;
     const startAt = ctx.currentTime + 0.05;
 
-    if (session !== this.sessionId) {
+    if (style === 'block') {
+      if (session !== this.sessionId) {
+        return;
+      }
+      for (const semitone of semitones) {
+        const midi = midiNoteNumber(chordKey.pitchClass, semitone);
+        this.scheduleNote(ctx, midi, startAt, CHORD_DURATION_SEC);
+      }
       return;
     }
 
+    let time = startAt;
     for (const semitone of semitones) {
+      if (session !== this.sessionId) {
+        return;
+      }
       const midi = midiNoteNumber(chordKey.pitchClass, semitone);
-      this.scheduleNote(ctx, midi, startAt, CHORD_DURATION_SEC);
+      this.scheduleNote(ctx, midi, time, SCALE_NOTE_DURATION_SEC);
+      time += SCALE_NOTE_DURATION_SEC + SCALE_NOTE_GAP_SEC;
     }
   }
 

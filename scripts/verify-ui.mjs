@@ -38,10 +38,16 @@ async function runChecks(page) {
   assert((await noteNameLines.count()) === 2, 'expected note name lines for scale and chord');
   assert((await noteNameLines.first().textContent())?.includes('C'), 'scale note names expected');
 
-  const scalePlayBtn = page.locator('.tone-panel__play').first();
-  const chordPlayBtn = page.locator('.tone-panel__play').nth(1);
-  assert((await scalePlayBtn.count()) === 1, 'scale play button missing');
-  assert((await chordPlayBtn.count()) === 1, 'chord play button missing');
+  const playButtons = page.locator('.tone-panel__play');
+  assert((await playButtons.count()) === 3, 'expected scale + chord block + arpeggio buttons');
+  assert(
+    (await playButtons.nth(1).textContent()) === '▶ 同時',
+    'chord block play button label',
+  );
+  assert(
+    (await playButtons.nth(2).textContent()) === '▶ アルペジオ',
+    'chord arpeggio play button label',
+  );
 
   const scaleSelect = page.locator('#scale-select');
   const chordKeySelect = page.locator('#chord-key-select');
@@ -117,20 +123,22 @@ async function runChecks(page) {
   );
 
   const hitProbe = await page.evaluate(() => {
-    const btn = document.querySelector('button.interval-capsule--root');
+    const btn = document.querySelector(
+      'button.interval-capsule--scale-root, button.interval-capsule--chord-root, button.interval-capsule--playable',
+    );
     if (!btn) {
       return null;
     }
     const r = btn.getBoundingClientRect();
     const y = r.top + r.height / 2;
-    const rightX = r.left + r.width * 0.85;
-    const el = document.elementFromPoint(rightX, y);
+    const centerX = r.left + r.width / 2;
+    const el = document.elementFromPoint(centerX, y);
     return {
       isButton: el === btn,
       className: el?.className ?? '',
     };
   });
-  assert(hitProbe?.isButton === true, `right side of capsule should hit button, got ${hitProbe?.className}`);
+  assert(hitProbe?.isButton === true, `center of capsule should hit button, got ${hitProbe?.className}`);
 
   const borderRadius = await capsules.first().evaluate((el) => getComputedStyle(el).borderRadius);
   assert(
@@ -138,11 +146,19 @@ async function runChecks(page) {
     `capsule should be pill shape, got ${borderRadius}`,
   );
 
-  const rootCapsule = page.locator('.interval-capsule--root').first();
-  const rootBg = await rootCapsule.evaluate((el) => getComputedStyle(el).backgroundColor);
-  const rootColor = await rootCapsule.evaluate((el) => getComputedStyle(el).color);
-  assert(rootBg !== 'rgba(0, 0, 0, 0)', 'root capsule background missing');
-  assert(rootColor === 'rgb(255, 255, 255)', `root text should be white, got ${rootColor}`);
+  await page.locator('.view-switcher .segment-switcher__btn', { hasText: 'スケール' }).click();
+  const scaleRootCapsule = page.locator('.interval-capsule--scale-root').first();
+  const scaleRootBg = await scaleRootCapsule.evaluate(
+    (el) => getComputedStyle(el).backgroundColor,
+  );
+  const scaleRootColor = await scaleRootCapsule.evaluate(
+    (el) => getComputedStyle(el).color,
+  );
+  assert(scaleRootBg !== 'rgba(0, 0, 0, 0)', 'scale root capsule background missing');
+  assert(
+    scaleRootColor === 'rgb(255, 255, 255)',
+    `scale root text should be white, got ${scaleRootColor}`,
+  );
 
   const mutedCapsule = page.locator('.interval-capsule--muted').first();
   const mutedStyles = await mutedCapsule.evaluate((el) => {
@@ -243,17 +259,76 @@ async function runChecks(page) {
   const openCapBox = await openCap.boundingBox();
   assert(!!openIntBox && !!openCapBox, 'open intersection missing');
   assert(
-    Math.abs(openCapBox.x + openCapBox.width / 2 - (openIntBox.x + openIntBox.width)) < 5,
-    'open capsule should be on nut wire (right edge)',
+    Math.abs(
+      openCapBox.x + openCapBox.width / 2 - (openIntBox.x + openIntBox.width / 2),
+    ) < 5,
+    'open capsule should be centered in nut column (between string name and 0 fret)',
   );
 
-  const fretIntersection = page.locator('.fretboard__intersection:not(.fretboard__intersection--open)').nth(2);
-  const fretCap = fretIntersection.locator('.interval-capsule');
-  const fretIntBox = await fretIntersection.boundingBox();
-  const fretCapBox = await fretCap.boundingBox();
+  const openLabelOverlap = await page.evaluate(() => {
+    const opens = [...document.querySelectorAll('.fretboard__intersection--open')];
+    const labels = [...document.querySelectorAll('.fretboard__string-label')];
+    return opens.map((open, i) => {
+      const cap = open.querySelector('.interval-capsule');
+      const cr = cap.getBoundingClientRect();
+      const lr = labels[i].getBoundingClientRect();
+      return cr.left >= lr.right - 1;
+    });
+  });
   assert(
-    Math.abs(fretCapBox.x + fretCapBox.width / 2 - (fretIntBox.x + fretIntBox.width)) < 5,
-    'fret capsule should be on fret wire',
+    openLabelOverlap.every(Boolean),
+    `open capsules should not overlap string labels: ${openLabelOverlap}`,
+  );
+
+  const capsuleInlayAlignment = await page.evaluate(() => {
+    const headNums = [...document.querySelectorAll(
+      '.fretboard__head-cell--fret .fretboard__fret-num',
+    )];
+    const wireRight = (fretNum) => {
+      const el = headNums.find((n) => n.textContent === String(fretNum));
+      const cell = el?.closest('.fretboard__head-cell--fret');
+      return cell ? cell.getBoundingClientRect().right : 0;
+    };
+    const markerCx = (fret) => {
+      const marker = [...document.querySelectorAll('.fretboard__inlay-marker')].find(
+        (m) => Number(m.style.gridColumn) === 2 + fret,
+      );
+      const r = marker?.getBoundingClientRect();
+      return r ? r.left + r.width / 2 : 0;
+    };
+    const grid = document.querySelector('.fretboard__grid');
+    const cells = [...grid.children].filter(
+      (c) => !c.classList.contains('fretboard__inlays'),
+    );
+    const headerCount = 2 + 24;
+    const capCxAtFret = (fret) => {
+      const caps = [];
+      for (let s = 0; s < 6; s++) {
+        const idx = headerCount + s * 26 + 1 + fret;
+        const cell = cells[idx];
+        const cap = cell?.querySelector('.interval-capsule');
+        const r = cap?.getBoundingClientRect();
+        if (r) {
+          caps.push(r.left + r.width / 2);
+        }
+      }
+      return caps.length ? caps.reduce((a, b) => a + b, 0) / caps.length : 0;
+    };
+    const fret = 3;
+    const cx = capCxAtFret(fret);
+    const inlay = markerCx(fret);
+    const w2 = wireRight(2);
+    const w3 = wireRight(3);
+    return { fret, cx, inlay, w2, w3, deltaInlay: Math.abs(cx - inlay) };
+  });
+  assert(
+    capsuleInlayAlignment.cx > capsuleInlayAlignment.w2 &&
+      capsuleInlayAlignment.cx < capsuleInlayAlignment.w3,
+    `fret ${capsuleInlayAlignment.fret} capsule should be between fret wires`,
+  );
+  assert(
+    capsuleInlayAlignment.deltaInlay < 4,
+    `fret ${capsuleInlayAlignment.fret} capsule should align with inlay (${capsuleInlayAlignment.deltaInlay}px)`,
   );
 
   const fretNum = page.locator('.fretboard__head-cell--fret .fretboard__fret-num').first();
@@ -278,11 +353,11 @@ async function runChecks(page) {
   const noteNameCount = await page.locator('.interval-capsule', { hasText: 'C' }).count();
   assert(noteNameCount > 0, 'note mode should show pitch names like C');
   await page.locator('.label-switcher .segment-switcher__btn', { hasText: 'インターバル' }).click();
-  const intervalCapsule = page.locator('.interval-capsule--root').first();
+  const intervalCapsule = page.locator('.interval-capsule--scale-root').first();
   assert((await intervalCapsule.textContent()) === 'R', 'interval mode should show R');
 
   await page.locator('.view-switcher .segment-switcher__btn', { hasText: '指板' }).click();
-  const fretboardRootCount = await page.locator('.interval-capsule--root').count();
+  const fretboardRootCount = await page.locator('.interval-capsule--scale-root').count();
   const fretboardScaleCount = await page.locator('.interval-capsule--scale').count();
   const fretboardChordCount = await page.locator('.interval-capsule--chord').count();
   const fretboardMutedCount = await page.locator('.interval-capsule--muted').count();
@@ -293,16 +368,17 @@ async function runChecks(page) {
 
   await page.locator('.view-switcher .segment-switcher__btn', { hasText: 'スケール' }).click();
   const scaleCount = await page.locator('.interval-capsule--scale').count();
-  const scaleRootCount = await page.locator('.interval-capsule--root').count();
+  const scaleRootCount = await page.locator('.interval-capsule--scale-root').count();
   assert(scaleCount > 0, 'scale view should show scale capsules');
-  assert(scaleRootCount > 0, 'scale view should show red root capsules');
+  assert(scaleRootCount > 0, 'scale view should show scale root capsules');
 
   await page.locator('.view-switcher .segment-switcher__btn', { hasText: 'コード' }).click();
   const chordCount = await page.locator('.interval-capsule--chord').count();
+  const chordRootCount = await page.locator('.interval-capsule--chord-root').count();
   assert(chordCount > 0, 'chord view should show chord capsules');
+  assert(chordRootCount > 0, 'chord view should show chord root capsules');
 
   await page.locator('.view-switcher .segment-switcher__btn', { hasText: '複合' }).click();
-  assert((await page.locator('.interval-capsule--root').count()) > 0, 'composite view roots');
 
   await scaleKeySelect.selectOption('E');
   assert((await scaleKeySelect.inputValue()) === 'E', 'scale key should update to E');
@@ -310,9 +386,49 @@ async function runChecks(page) {
   assert((await bottomOpenCap.textContent()) === 'R', '6th string open should be R for scale root E');
 
   await chordKeySelect.selectOption('A');
+  await page.locator('.view-switcher .segment-switcher__btn', { hasText: '複合' }).click();
+  assert(
+    (await page.locator('.interval-capsule--scale-root').count()) > 0,
+    'composite view scale roots (E)',
+  );
+  assert(
+    (await page.locator('.interval-capsule--chord-root').count()) > 0,
+    'composite view chord roots (A)',
+  );
+
   await page.locator('.view-switcher .segment-switcher__btn', { hasText: 'コード' }).click();
-  const chordRootCapsules = page.locator('.interval-capsule--root');
+  const chordRootCapsules = page.locator('.interval-capsule--chord-root');
   assert((await chordRootCapsules.count()) >= 6, 'chord root A should appear on multiple strings');
+  const chordRootBg = await chordRootCapsules.first().evaluate(
+    (el) => getComputedStyle(el).backgroundColor,
+  );
+  assert(
+    chordRootBg === 'rgb(224, 123, 57)',
+    `chord root should be orange, got ${chordRootBg}`,
+  );
+
+  await page.locator('.view-switcher .segment-switcher__btn', { hasText: '複合' }).click();
+  const compositeChordRootBg = await page
+    .locator('.interval-capsule--chord-root')
+    .first()
+    .evaluate((el) => getComputedStyle(el).backgroundColor);
+  const compositeScaleRootBg = await page
+    .locator('.interval-capsule--scale-root')
+    .first()
+    .evaluate((el) => getComputedStyle(el).backgroundColor);
+  assert(
+    compositeScaleRootBg === 'rgb(184, 84, 80)',
+    `composite scale root should be red, got ${compositeScaleRootBg}`,
+  );
+  assert(
+    compositeChordRootBg === 'rgb(224, 123, 57)',
+    `composite chord root should be orange, got ${compositeChordRootBg}`,
+  );
+
+  await page.locator('.app-header__mode .segment-switcher__btn', { hasText: 'ライブラリ' }).click();
+  const libraryPlay = page.locator('.library-view__play');
+  assert((await libraryPlay.count()) >= 1, 'library form should show preview play buttons');
+  await page.locator('.app-header__mode .segment-switcher__btn', { hasText: '練習' }).click();
 
   await scaleSelect.selectOption('dorian');
   const tonePanel = page.locator('.tone-panel__tones').first();
@@ -322,7 +438,7 @@ async function runChecks(page) {
   return {
     scaleKeyId: await scaleKeySelect.inputValue(),
     chordKeyId: await chordKeySelect.inputValue(),
-    rootBg,
+    scaleRootBg,
     gridWidth,
     scrollWidth,
   };
@@ -372,7 +488,7 @@ async function main() {
   console.log('UI verification PASSED');
   console.log(`  URL: ${baseUrl}`);
   console.log(`  Scale key: ${desktop.scaleKeyId}, Chord key: ${desktop.chordKeyId}`);
-  console.log(`  Root capsule bg: ${desktop.rootBg}`);
+  console.log(`  Scale root capsule bg: ${desktop.scaleRootBg}`);
   console.log(`  Desktop scroll: ${desktop.gridWidth}px > ${desktop.scrollWidth}px`);
   console.log(`  Mobile scroll: ${mobileGrid}px > ${mobileClient}px`);
 }

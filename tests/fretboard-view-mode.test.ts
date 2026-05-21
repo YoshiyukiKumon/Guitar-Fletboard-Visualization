@@ -40,26 +40,26 @@ describe('resolveCapsuleStyle', () => {
   };
 
   it('fretboard: emphasizes scale root only', () => {
-    expect(resolveCapsuleStyle(scaleRootOnly, 'fretboard')).toBe('root');
+    expect(resolveCapsuleStyle(scaleRootOnly, 'fretboard')).toBe('scale-root');
     expect(resolveCapsuleStyle(chordRootOnly, 'fretboard')).toBe('scale');
   });
 
   it('scale: emphasizes scale root and scale tones', () => {
-    expect(resolveCapsuleStyle(scaleRootOnly, 'scale')).toBe('root');
+    expect(resolveCapsuleStyle(scaleRootOnly, 'scale')).toBe('scale-root');
     expect(resolveCapsuleStyle(scaleOnly, 'scale')).toBe('scale');
     expect(resolveCapsuleStyle(chordOnly, 'scale')).toBe('muted');
   });
 
   it('chord: emphasizes chord root and chord tones', () => {
-    expect(resolveCapsuleStyle(chordRootOnly, 'chord')).toBe('root');
+    expect(resolveCapsuleStyle(chordRootOnly, 'chord')).toBe('chord-root');
     expect(resolveCapsuleStyle(chordOnly, 'chord')).toBe('chord');
     expect(resolveCapsuleStyle(scaleOnly, 'chord')).toBe('muted');
   });
 
-  it('composite: both roots are red, then chord > scale > muted', () => {
-    expect(resolveCapsuleStyle(bothRoots, 'composite')).toBe('root');
-    expect(resolveCapsuleStyle(scaleRootOnly, 'composite')).toBe('root');
-    expect(resolveCapsuleStyle(chordRootOnly, 'composite')).toBe('root');
+  it('composite: scale-root when roots overlap, chord-root only otherwise', () => {
+    expect(resolveCapsuleStyle(bothRoots, 'composite')).toBe('scale-root');
+    expect(resolveCapsuleStyle(scaleRootOnly, 'composite')).toBe('scale-root');
+    expect(resolveCapsuleStyle(chordRootOnly, 'composite')).toBe('chord-root');
     expect(resolveCapsuleStyle(chordOnly, 'composite')).toBe('chord');
     expect(resolveCapsuleStyle(scaleOnly, 'composite')).toBe('scale');
     expect(resolveCapsuleStyle(other, 'composite')).toBe('muted');
