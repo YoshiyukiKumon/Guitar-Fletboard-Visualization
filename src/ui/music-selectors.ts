@@ -1,5 +1,6 @@
+import { chordRootOptionsForScaleKey } from '../domain/chord-root-options';
 import { CHORDS } from '../domain/data/chords';
-import { KEYS } from '../domain/data/keys';
+import { KEYS, findKeyById } from '../domain/data/keys';
 import { SCALES } from '../domain/data/scales';
 
 export interface MusicSelectorValues {
@@ -20,6 +21,9 @@ export function createMusicSelectors(
   values: MusicSelectorValues,
   callbacks: MusicSelectorCallbacks,
 ): HTMLElement {
+  const scaleKey = findKeyById(values.scaleKeyId) ?? KEYS[0];
+  const chordRootOptions = chordRootOptionsForScaleKey(scaleKey);
+
   const section = document.createElement('section');
   section.className = 'music-selectors';
   section.setAttribute('aria-label', 'キー・スケール・コード');
@@ -52,7 +56,7 @@ export function createMusicSelectors(
     createSelectField({
       id: 'chord-key-select',
       label: 'コードルート',
-      items: KEYS,
+      items: chordRootOptions,
       value: values.chordKeyId,
       onChange: callbacks.onChordKeyChange,
     }),

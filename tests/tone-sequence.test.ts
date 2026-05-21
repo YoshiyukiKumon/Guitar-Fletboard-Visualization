@@ -27,7 +27,7 @@ describe('display names', () => {
   it('formats scale and chord titles', () => {
     const keyD = KEYS.find((k) => k.id === 'D')!;
     expect(formatScaleName(keyD, MVP_SCALE)).toBe('D Major');
-    expect(formatChordName(keyD, MVP_CHORD)).toBe('D△7');
+    expect(formatChordName(keyD, MVP_CHORD, keyD)).toBe('D△7');
     expect(formatScaleChordSummary(keyD, MVP_SCALE, keyD, MVP_CHORD)).toBe(
       'D Major / D△7',
     );

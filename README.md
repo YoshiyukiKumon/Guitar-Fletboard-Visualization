@@ -31,6 +31,8 @@ npm run build
 
 構成音パネルの **▶ 再生** で、スケールは 1 オクターブを順番に、コードはまとめて鳴らせます（ブラウザの Web Audio API を使用）。**音量** はスライダーで調整でき、設定は保存されます。
 
+音名表記とコードルートの表記ルールは [docs/spec-note-spelling-rules.md](docs/spec-note-spelling-rules.md) を参照してください（スケールルートの調号に合わせて # / b を混在させません）。
+
 ## 開発時
 
 ```bash

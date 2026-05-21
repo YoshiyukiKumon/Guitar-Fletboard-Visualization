@@ -1,5 +1,7 @@
 import './styles/main.css';
 import { tonePlayer } from './audio/tone-player';
+import { remapChordKeyIdForScaleKey } from './domain/chord-root-options';
+import { findKeyById } from './domain/data/keys';
 import { loadSettings, saveSettings } from './app/storage';
 import type { AppSettings } from './app/storage';
 import { renderApp } from './ui/app-shell';
@@ -30,8 +32,13 @@ function refresh(partial?: Partial<AppSettings>): void {
       refresh({ labelMode });
     },
     onScaleKeyChange: (scaleKeyId) => {
-      saveSettings({ ...settings, scaleKeyId });
-      refresh({ scaleKeyId });
+      const scaleKey = findKeyById(scaleKeyId);
+      const chordKeyId =
+        scaleKey !== undefined
+          ? remapChordKeyIdForScaleKey(settings.chordKeyId, scaleKey)
+          : settings.chordKeyId;
+      saveSettings({ ...settings, scaleKeyId, chordKeyId });
+      refresh({ scaleKeyId, chordKeyId });
     },
     onScaleChange: (scaleId) => {
       saveSettings({ ...settings, scaleId });

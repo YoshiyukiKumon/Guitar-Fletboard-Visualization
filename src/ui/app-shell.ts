@@ -128,7 +128,7 @@ function createTonePanel(model: FretboardModel): HTMLElement {
   chordBlock.className = 'tone-panel__block';
   chordBlock.appendChild(
     createToneBlockHeader(
-      formatChordName(model.chordKey, model.chord),
+      formatChordName(model.chordKey, model.chord, model.scaleKey),
       'コードトーンを同時に再生',
       () => tonePlayer.playChord(model.chordKey, model.chord),
     ),

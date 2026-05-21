@@ -2,7 +2,7 @@ import type { ChordDef } from './data/chords';
 import type { KeyDef } from './data/keys';
 import type { ScaleDef } from './data/scales';
 import { labelInToneSet, INTERVAL_LABEL_BY_SEMITONE } from './interval-labels';
-import { noteNameForPitchClass } from './note-names';
+import { chordRootDisplayName, noteNameForPitchClass } from './note-names';
 
 /** 構成音ラベル（併記可）をルートからの半音数に変換 */
 export function semitoneForToneLabel(tone: string): number | undefined {
@@ -40,9 +40,13 @@ export function formatScaleName(scaleKey: KeyDef, scale: ScaleDef): string {
   return `${scaleKey.id} ${scale.name}`;
 }
 
-/** 表示用コード名（例: Dm7） */
-export function formatChordName(chordKey: KeyDef, chord: ChordDef): string {
-  return `${chordKey.id}${chord.name}`;
+/** 表示用コード名（例: Dm7）— ルート表記はスケールキーの調号に合わせる */
+export function formatChordName(
+  chordKey: KeyDef,
+  chord: ChordDef,
+  scaleKey: KeyDef,
+): string {
+  return `${chordRootDisplayName(chordKey, scaleKey)}${chord.name}`;
 }
 
 /** スケール / コードの一行表示（例: D Major / Dm7） */
@@ -52,7 +56,7 @@ export function formatScaleChordSummary(
   chordKey: KeyDef,
   chord: ChordDef,
 ): string {
-  return `${formatScaleName(scaleKey, scale)} / ${formatChordName(chordKey, chord)}`;
+  return `${formatScaleName(scaleKey, scale)} / ${formatChordName(chordKey, chord, scaleKey)}`;
 }
 
 /** 構成音定義順の音名一覧（例: D · E · F# · G） */

@@ -15,7 +15,7 @@ export const CHORDS: readonly ChordDef[] = [
   { id: 'm-maj7', name: 'm△7', tones: ['R', 'm3 / #9', '5', '△7'] },
   { id: 'maj7-9', name: '△7(9)', tones: ['R', '3', '5', '△7', '2 / 9'] },
   { id: 'maj7-sharp11', name: '△7(#11)', tones: ['R', '3', '5', '△7', 'b5 / #11'] },
-  { id: 'maj6-9', name: '△6(9)', tones: ['R', '3', '6 / 13', '2 / 9'] },
+  { id: 'maj6-9', name: '6(9)', tones: ['R', '3', '6 / 13', '2 / 9'] },
   { id: '6', name: '6', tones: ['R', '3', '6 / 13'] },
   { id: 'aug', name: 'aug', tones: ['R', '3', '+5 / b13'] },
   { id: '7sharp5', name: '7+5', tones: ['R', '3', '+5 / b13', 'b7'] },

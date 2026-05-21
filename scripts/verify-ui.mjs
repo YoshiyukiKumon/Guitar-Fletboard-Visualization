@@ -56,6 +56,31 @@ async function runChecks(page) {
   assert((await scaleKeySelect.inputValue()) === 'C', 'default scale key should be C');
   assert((await chordKeySelect.inputValue()) === 'C', 'default chord key should be C');
 
+  await scaleKeySelect.selectOption('Ab');
+  const chordLabelsAb = await chordKeySelect.locator('option').allTextContents();
+  assert(
+    chordLabelsAb.includes('Gb'),
+    `Ab key chord roots should spell Gb, got ${chordLabelsAb.join(',')}`,
+  );
+  assert(
+    !chordLabelsAb.some((t) => t.includes('#')),
+    'Ab key chord root labels should not use sharps',
+  );
+
+  await scaleKeySelect.selectOption('D');
+  const chordLabelsD = await chordKeySelect.locator('option').allTextContents();
+  assert(
+    chordLabelsD.includes('F#'),
+    `D key chord roots should spell F#, got ${chordLabelsD.join(',')}`,
+  );
+  assert(
+    !chordLabelsD.some((t) => t.includes('b')),
+    'D key chord root labels should not use flats',
+  );
+
+  await scaleKeySelect.selectOption('C');
+  assert((await chordKeySelect.inputValue()) === 'C', 'chord key should stay on C pitch class');
+
   const viewTitle = page.locator('.view-switcher__title');
   assert((await viewTitle.textContent()) === '表示', 'view switcher title should be 表示');
 

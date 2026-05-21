@@ -9,7 +9,9 @@ import {
   noteNameForPitchClass,
   spellNoteForSemitone,
   usesFlatNotationForScaleRoot,
+  usesMixedAccidentals,
 } from '../src/domain/note-names';
+import { buildFretboard } from '../src/domain/fretboard';
 
 describe('noteNameForPitchClass', () => {
   it('maps pitch classes with sharp style overload', () => {
@@ -58,6 +60,26 @@ describe('flat scale root keys', () => {
 
   it('resolves legacy sharp key ids', () => {
     expect(findKeyById('A#')?.id).toBe('Bb');
+  });
+});
+
+describe('consistent notation per scale key', () => {
+  it('does not mix # and b on Ab major fretboard', () => {
+    const ab = findKeyById('Ab')!;
+    const model = buildFretboard(ab, MVP_SCALE, ab, MVP_CHORD);
+    const names = model.strings.flatMap((s) =>
+      s.frets.map((c) => c.noteName),
+    );
+    expect(usesMixedAccidentals(names)).toBe(false);
+  });
+
+  it('does not mix # and b on D major fretboard', () => {
+    const d = findKeyById('D')!;
+    const model = buildFretboard(d, MVP_SCALE, d, MVP_CHORD);
+    const names = model.strings.flatMap((s) =>
+      s.frets.map((c) => c.noteName),
+    );
+    expect(usesMixedAccidentals(names)).toBe(false);
   });
 });
 
