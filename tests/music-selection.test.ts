@@ -47,6 +47,7 @@ describe('buildFretboard separate roots', () => {
 
     expect(open6.isChordRoot).toBe(false);
     expect(open6.inChord).toBe(true);
+    expect(open6.chordIntervalLabel).toBe('5');
   });
 
   it('scale root E makes 6th string open R in scale context', () => {

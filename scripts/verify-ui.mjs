@@ -442,6 +442,15 @@ async function runChecks(page) {
   );
 
   await page.locator('.view-switcher .segment-switcher__btn', { hasText: 'コード' }).click();
+  const open6ChordInterval = await page
+    .locator('.fretboard__intersection--open')
+    .first()
+    .locator('.interval-capsule')
+    .textContent();
+  assert(
+    open6ChordInterval === '5',
+    `chord view should show chord-root interval (E vs A = 5), got ${open6ChordInterval}`,
+  );
   const chordRootCapsules = page.locator('.interval-capsule--chord-root');
   assert((await chordRootCapsules.count()) >= 6, 'chord root A should appear on multiple strings');
   const chordRootBg = await chordRootCapsules.first().evaluate(

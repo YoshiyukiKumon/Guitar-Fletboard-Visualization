@@ -110,7 +110,9 @@ describe('buildFretboard note names', () => {
 
   it('displayLabelForCell switches by mode', () => {
     const cell = modelC.strings[0].frets[1];
-    expect(displayLabelForCell(cell, 'interval')).toBe(cell.intervalLabel);
-    expect(displayLabelForCell(cell, 'note')).toBe(cell.noteName);
+    expect(displayLabelForCell(cell, 'interval', 'scale')).toBe(
+      cell.intervalLabel,
+    );
+    expect(displayLabelForCell(cell, 'note', 'scale')).toBe(cell.noteName);
   });
 });

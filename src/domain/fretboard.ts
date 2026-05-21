@@ -15,6 +15,8 @@ export interface FretCell {
   fret: number;
   /** スケールルート基準のインターバル表示 */
   intervalLabel: string;
+  /** コードルート基準のインターバル表示 */
+  chordIntervalLabel: string;
   /** 実音名（シャープ表記） */
   noteName: string;
   /** スケールルートからの半音数 */
@@ -53,11 +55,13 @@ export function buildFretboard(
       const scaleSemitone = semitoneFromRoot(pitchClass, scaleKey.pitchClass);
       const chordSemitone = semitoneFromRoot(pitchClass, chordKey.pitchClass);
       const intervalLabel = labelForSemitone(scaleSemitone);
+      const chordIntervalLabel = labelForSemitone(chordSemitone);
 
       frets.push({
         stringIndex,
         fret,
         intervalLabel,
+        chordIntervalLabel,
         noteName: noteNameForPitchClass(pitchClass, scaleKey),
         scaleSemitone,
         chordSemitone,

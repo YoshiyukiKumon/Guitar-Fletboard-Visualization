@@ -165,7 +165,7 @@ function attachPlayableCapsule(
     capsule.classList.add('interval-capsule--dot-circle');
     capsule.textContent = '';
   } else {
-    capsule.textContent = displayLabelForCell(cell, labelMode);
+    capsule.textContent = displayLabelForCell(cell, labelMode, viewMode);
   }
   capsule.setAttribute(
     'aria-label',
