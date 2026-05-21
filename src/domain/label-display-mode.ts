@@ -1,6 +1,7 @@
-export type LabelDisplayMode = 'interval' | 'note';
+export type LabelDisplayMode = 'interval' | 'note' | 'dot';
 
 export const LABEL_DISPLAY_MODES: readonly LabelDisplayMode[] = [
+  'dot',
   'interval',
   'note',
 ] as const;
@@ -8,6 +9,7 @@ export const LABEL_DISPLAY_MODES: readonly LabelDisplayMode[] = [
 export const LABEL_MODE_LABELS: Record<LabelDisplayMode, string> = {
   interval: 'インターバル',
   note: '音名',
+  dot: '●',
 };
 
 export interface CellDisplayLabels {
@@ -19,6 +21,9 @@ export function displayLabelForCell(
   cell: CellDisplayLabels,
   mode: LabelDisplayMode,
 ): string {
+  if (mode === 'dot') {
+    return '';
+  }
   return mode === 'note' ? cell.noteName : cell.intervalLabel;
 }
 

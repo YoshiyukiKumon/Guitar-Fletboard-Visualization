@@ -92,12 +92,35 @@ async function runChecks(page) {
 
   const viewTabs = page.locator('.view-switcher .segment-switcher__btn');
   assert((await viewTabs.count()) === 4, 'expected 4 view mode tabs');
+  const scaleViewTab = page.locator('.view-switcher .segment-switcher__btn', {
+    hasText: 'スケール',
+  });
+  assert(
+    (await scaleViewTab.getAttribute('aria-selected')) === 'true',
+    'scale should be default view mode',
+  );
 
   const toolsRow = page.locator('.app-controls__tools');
   assert((await toolsRow.count()) === 1, 'label and volume should share one row');
 
+  const labelSwitcherTitle = page.locator('.label-switcher__title');
+  assert((await labelSwitcherTitle.textContent()) === '指板', 'label switcher title');
+
   const labelTabs = page.locator('.label-switcher .segment-switcher__btn');
-  assert((await labelTabs.count()) === 2, 'expected 2 label mode tabs');
+  assert((await labelTabs.count()) === 3, 'expected 3 label mode tabs');
+  assert((await labelTabs.nth(0).textContent()) === '●', 'first label tab should be dot');
+  assert(
+    (await labelTabs.nth(0).getAttribute('aria-selected')) === 'true',
+    'dot should be default label mode',
+  );
+  assert(
+    (await page.locator('.interval-capsule--dot-circle').count()) > 0,
+    'dot mode should be active on first load',
+  );
+
+  await page
+    .locator('.label-switcher .segment-switcher__btn', { hasText: 'インターバル' })
+    .click();
 
   const volumeSlider = page.locator('#volume-slider');
   assert((await volumeSlider.count()) === 1, 'volume slider missing');
@@ -352,6 +375,28 @@ async function runChecks(page) {
   await page.locator('.label-switcher .segment-switcher__btn', { hasText: '音名' }).click();
   const noteNameCount = await page.locator('.interval-capsule', { hasText: 'C' }).count();
   assert(noteNameCount > 0, 'note mode should show pitch names like C');
+
+  await page.locator('.label-switcher .segment-switcher__btn', { hasText: '●' }).click();
+  const dotCapsule = page.locator('.interval-capsule--dot-circle').first();
+  assert((await dotCapsule.count()) > 0, 'dot mode should show circle capsules');
+  const dotShape = await dotCapsule.evaluate((el) => {
+    const s = getComputedStyle(el);
+    return {
+      w: parseFloat(s.width),
+      h: parseFloat(s.height),
+      radius: s.borderRadius,
+      text: el.textContent,
+    };
+  });
+  assert(dotShape.text === '', 'dot capsule should have no center character');
+  assert(Math.abs(dotShape.w - dotShape.h) < 1, 'dot capsule should be square');
+  assert(
+    dotShape.radius === '50%' || parseFloat(dotShape.radius) >= dotShape.w / 2 - 1,
+    `dot capsule should be circular, radius=${dotShape.radius}`,
+  );
+  const mutedInDot = await page.locator('.interval-capsule--muted').count();
+  assert(mutedInDot === 0, 'dot mode should hide muted capsules');
+
   await page.locator('.label-switcher .segment-switcher__btn', { hasText: 'インターバル' }).click();
   const intervalCapsule = page.locator('.interval-capsule--scale-root').first();
   assert((await intervalCapsule.textContent()) === 'R', 'interval mode should show R');
@@ -447,6 +492,9 @@ async function runChecks(page) {
 async function main() {
   const browser = await chromium.launch({ headless: true });
   const page = await browser.newPage();
+  await page.addInitScript(() => {
+    localStorage.removeItem('guitar-practice-settings');
+  });
 
   await page.goto(baseUrl, { waitUntil: 'load', timeout: 30000 });
   const desktop = await runChecks(page);

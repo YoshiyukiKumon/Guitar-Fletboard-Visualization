@@ -28,8 +28,8 @@ export interface AppSettings {
 
 const DEFAULT_SETTINGS: AppSettings = {
   appMode: 'practice',
-  viewMode: 'composite',
-  labelMode: 'interval',
+  viewMode: 'scale',
+  labelMode: 'dot',
   scaleKeyId: MVP_KEY.id,
   scaleId: MVP_SCALE.id,
   chordKeyId: MVP_KEY.id,

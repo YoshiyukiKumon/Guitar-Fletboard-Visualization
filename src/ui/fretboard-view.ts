@@ -12,6 +12,7 @@ import {
 import {
   type FretboardViewMode,
   resolveCapsuleStyle,
+  type CapsuleStyleKind,
 } from '../domain/fretboard-view-mode';
 
 export function renderFretboard(
@@ -149,14 +150,23 @@ function attachPlayableCapsule(
   viewMode: FretboardViewMode,
   labelMode: LabelDisplayMode,
 ): void {
+  const styleKind = resolveCapsuleStyle(cell, viewMode);
+  if (labelMode === 'dot' && styleKind === 'muted') {
+    return;
+  }
+
   const anchor = document.createElement('div');
   anchor.className = 'fretboard__capsule-anchor';
 
   const capsule = document.createElement('button');
   capsule.type = 'button';
-  capsule.className = `${capsuleClass(cell, viewMode)} interval-capsule--playable`;
-  const label = displayLabelForCell(cell, labelMode);
-  capsule.textContent = label;
+  capsule.className = capsuleClassFromKind(styleKind);
+  if (labelMode === 'dot') {
+    capsule.classList.add('interval-capsule--dot-circle');
+    capsule.textContent = '';
+  } else {
+    capsule.textContent = displayLabelForCell(cell, labelMode);
+  }
   capsule.setAttribute(
     'aria-label',
     `${cell.noteName}（${STRING_LABEL_FOR_ARIA(cell.stringIndex)}弦 ${cell.fret} フレット）を再生`,
@@ -179,7 +189,6 @@ function STRING_LABEL_FOR_ARIA(stringIndex: number): number {
   return 6 - stringIndex;
 }
 
-function capsuleClass(cell: FretCell, viewMode: FretboardViewMode): string {
-  const kind = resolveCapsuleStyle(cell, viewMode);
-  return `interval-capsule interval-capsule--${kind}`;
+function capsuleClassFromKind(kind: CapsuleStyleKind): string {
+  return `interval-capsule interval-capsule--playable interval-capsule--${kind}`;
 }

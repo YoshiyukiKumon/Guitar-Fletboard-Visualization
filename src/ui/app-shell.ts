@@ -295,14 +295,27 @@ function createLabelModeSwitcher(
   activeMode: LabelDisplayMode,
   onChange: (mode: LabelDisplayMode) => void,
 ): HTMLElement {
-  return createSegmentSwitcher({
+  const nav = createSegmentSwitcher({
     className: 'segment-switcher label-switcher',
-    ariaLabel: 'ラベル表示',
+    ariaLabel: '指板の表示',
     modes: LABEL_DISPLAY_MODES,
     labels: LABEL_MODE_LABELS,
     active: activeMode,
     onChange,
   });
+
+  const title = document.createElement('span');
+  title.className = 'label-switcher__title';
+  title.textContent = '指板';
+  nav.prepend(title);
+
+  for (const btn of nav.querySelectorAll('.segment-switcher__btn')) {
+    if (btn.textContent === '●') {
+      btn.classList.add('segment-switcher__btn--dot-tab');
+    }
+  }
+
+  return nav;
 }
 
 function createLegend(viewMode: FretboardViewMode): HTMLElement {
