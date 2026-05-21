@@ -33,6 +33,8 @@ npm run build
 
 音名表記とコードルートの表記ルールは [docs/spec-note-spelling-rules.md](docs/spec-note-spelling-rules.md) を参照してください（スケールルートの調号に合わせて # / b を混在させません）。
 
+ヘッダーの **ライブラリ** から、独自のスケール・コードの追加、CSV の入出力、初期状態へのリセットができます（詳細は [docs/spec-custom-music-library.md](docs/spec-custom-music-library.md)）。
+
 ## 開発時
 
 ```bash

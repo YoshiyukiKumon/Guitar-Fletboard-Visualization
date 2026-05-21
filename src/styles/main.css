@@ -47,11 +47,24 @@ body {
   padding: 1rem 1rem 2rem;
 }
 
+.app-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  margin-bottom: 0.5rem;
+}
+
 .app-header__title {
-  margin: 0 0 0.5rem;
+  margin: 0;
   font-size: 1.35rem;
   font-weight: 700;
   color: #f5f0eb;
+}
+
+.app-header__mode .segment-switcher__list {
+  flex-wrap: nowrap;
 }
 
 .music-selectors {
@@ -669,4 +682,223 @@ body {
   #app {
     padding: 1.5rem 2rem 2.5rem;
   }
+}
+
+/* ライブラリモード */
+.library-view {
+  margin-top: 0.75rem;
+}
+
+.library-view__tabs {
+  margin-bottom: 0.75rem;
+}
+
+.library-view__body {
+  margin-bottom: 1rem;
+}
+
+.library-view__split {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+@media (min-width: 720px) {
+  .library-view__split {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+
+  .library-view__list-pane {
+    flex: 0 0 40%;
+    max-width: 16rem;
+  }
+
+  .library-view__form-pane {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+}
+
+.library-view__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 16rem;
+  overflow-y: auto;
+  border: 1px solid #4a3d32;
+  border-radius: 8px;
+}
+
+.library-view__list-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.35rem;
+  width: 100%;
+  padding: 0.45rem 0.55rem;
+  border: none;
+  border-bottom: 1px solid #3a3028;
+  background: #2a221c;
+  color: #f5f0eb;
+  font-size: 0.82rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.library-view__list-btn--active {
+  background: #3d3228;
+}
+
+.library-view__badge {
+  flex-shrink: 0;
+  font-size: 0.62rem;
+  padding: 0.1rem 0.35rem;
+  border-radius: 4px;
+  background: #4a3d32;
+  color: #b8aea3;
+}
+
+.library-view__add-btn {
+  margin-top: 0.5rem;
+  width: 100%;
+  padding: 0.4rem 0.55rem;
+  border: 1px dashed #6a5a4a;
+  border-radius: 8px;
+  background: transparent;
+  color: #d4c4a8;
+  cursor: pointer;
+}
+
+.library-view__form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.library-view__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.library-view__field-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #b8aea3;
+}
+
+.library-view__input,
+.library-view__textarea {
+  width: 100%;
+  padding: 0.45rem 0.55rem;
+  border: 1px solid #4a3d32;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 0.85rem;
+  color: #f5f0eb;
+  background: #2a221c;
+}
+
+.library-view__textarea {
+  resize: vertical;
+  min-height: 6rem;
+}
+
+.library-view__tones {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.library-view__tone-row {
+  display: flex;
+  gap: 0.35rem;
+  align-items: center;
+}
+
+.library-view__tone-select {
+  flex: 1;
+  min-width: 0;
+}
+
+.library-view__tone-remove {
+  flex-shrink: 0;
+  padding: 0.35rem 0.5rem;
+  border: 1px solid #6a5a4a;
+  border-radius: 8px;
+  background: transparent;
+  color: #d4c4a8;
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+.library-view__add-tone-btn {
+  align-self: flex-start;
+  padding: 0.35rem 0.55rem;
+  border: 1px dashed #6a5a4a;
+  border-radius: 8px;
+  background: transparent;
+  color: #d4c4a8;
+  font-size: 0.78rem;
+  cursor: pointer;
+}
+
+.library-view__tone-readonly {
+  margin: 0;
+  padding-left: 1.1rem;
+  font-size: 0.85rem;
+  color: #f5f0eb;
+}
+
+.library-view__errors {
+  font-size: 0.78rem;
+  color: #e8a090;
+  white-space: pre-wrap;
+}
+
+.library-view__form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.library-view__btn {
+  padding: 0.4rem 0.75rem;
+  border: 1px solid #6a5a4a;
+  border-radius: 8px;
+  background: #3d3228;
+  color: #f5f0eb;
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+
+.library-view__btn--primary {
+  border-color: #8a7058;
+  background: #5c4a38;
+}
+
+.library-view__btn--danger {
+  border-color: #8a5048;
+  color: #f4cccc;
+}
+
+.library-view__btn--upload {
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.library-view__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #4a3d32;
+}
+
+.library-view__message {
+  margin: 0;
+  color: #b8aea3;
+  font-size: 0.85rem;
 }

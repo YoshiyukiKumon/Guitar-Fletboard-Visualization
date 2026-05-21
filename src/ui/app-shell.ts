@@ -10,7 +10,7 @@ import {
   type LabelDisplayMode,
   LABEL_MODE_LABELS,
 } from '../domain/label-display-mode';
-import type { AppSettings } from '../app/storage';
+import type { AppMode, AppSettings } from '../app/storage';
 import { tonePlayer } from '../audio/tone-player';
 import type { FretboardModel } from '../domain/fretboard';
 import {
@@ -19,11 +19,24 @@ import {
   formatScaleName,
   noteNamesFromTones,
 } from '../domain/tone-sequence';
+import {
+  createLibraryView,
+  type LibraryViewCallbacks,
+  type LibraryViewState,
+} from './library-view';
 import { createMusicSelectors } from './music-selectors';
+import { createSegmentSwitcher } from './segment-switcher';
 import { createVolumeControl } from './volume-control';
 import { renderFretboard } from './fretboard-view';
 
+const APP_MODES = ['practice', 'library'] as const;
+const APP_MODE_LABELS: Record<(typeof APP_MODES)[number], string> = {
+  practice: '練習',
+  library: 'ライブラリ',
+};
+
 export interface AppRenderOptions {
+  onAppModeChange: (mode: AppMode) => void;
   onViewModeChange: (mode: FretboardViewMode) => void;
   onLabelModeChange: (mode: LabelDisplayMode) => void;
   onScaleKeyChange: (keyId: string) => void;
@@ -31,6 +44,9 @@ export interface AppRenderOptions {
   onChordKeyChange: (keyId: string) => void;
   onChordChange: (chordId: string) => void;
   onVolumeChange: (volume: number) => void;
+  libraryState: LibraryViewState;
+  onLibraryStateChange: (state: LibraryViewState) => void;
+  onLibraryChanged: () => void;
 }
 
 export function renderApp(
@@ -50,8 +66,30 @@ export function renderApp(
 
   const header = document.createElement('header');
   header.className = 'app-header';
-  header.innerHTML = `<h1 class="app-header__title">ギター練習ツール</h1>`;
+  const title = document.createElement('h1');
+  title.className = 'app-header__title';
+  title.textContent = 'ギター練習ツール';
+  header.appendChild(title);
+  header.appendChild(
+    createSegmentSwitcher({
+      className: 'segment-switcher app-header__mode',
+      ariaLabel: 'アプリモード',
+      modes: APP_MODES,
+      labels: APP_MODE_LABELS,
+      active: settings.appMode,
+      onChange: options.onAppModeChange,
+    }),
+  );
   root.appendChild(header);
+
+  if (settings.appMode === 'library') {
+    const libraryCallbacks: LibraryViewCallbacks = {
+      onStateChange: options.onLibraryStateChange,
+      onLibraryChanged: options.onLibraryChanged,
+    };
+    root.appendChild(createLibraryView(options.libraryState, libraryCallbacks));
+    return;
+  }
 
   root.appendChild(
     createMusicSelectors(
@@ -188,44 +226,6 @@ function createToneBlockHeader(
   head.appendChild(heading);
   head.appendChild(playBtn);
   return head;
-}
-
-function createSegmentSwitcher<T extends string>(config: {
-  className: string;
-  ariaLabel: string;
-  modes: readonly T[];
-  labels: Record<T, string>;
-  active: T;
-  onChange: (mode: T) => void;
-}): HTMLElement {
-  const nav = document.createElement('nav');
-  nav.className = config.className;
-  nav.setAttribute('aria-label', config.ariaLabel);
-
-  const list = document.createElement('div');
-  list.className = 'segment-switcher__list';
-  list.setAttribute('role', 'tablist');
-
-  for (const mode of config.modes) {
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'segment-switcher__btn';
-    btn.setAttribute('role', 'tab');
-    btn.setAttribute('aria-selected', mode === config.active ? 'true' : 'false');
-    btn.textContent = config.labels[mode];
-    if (mode === config.active) {
-      btn.classList.add('segment-switcher__btn--active');
-    }
-    btn.addEventListener('click', () => {
-      if (mode !== config.active) {
-        config.onChange(mode);
-      }
-    });
-    list.appendChild(btn);
-  }
-
-  nav.appendChild(list);
-  return nav;
 }
 
 function createViewSwitcher(

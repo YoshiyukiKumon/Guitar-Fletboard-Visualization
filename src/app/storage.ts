@@ -12,7 +12,10 @@ import {
 
 const STORAGE_KEY = 'guitar-practice-settings';
 
+export type AppMode = 'practice' | 'library';
+
 export interface AppSettings {
+  appMode: AppMode;
   viewMode: FretboardViewMode;
   labelMode: LabelDisplayMode;
   scaleKeyId: string;
@@ -24,6 +27,7 @@ export interface AppSettings {
 }
 
 const DEFAULT_SETTINGS: AppSettings = {
+  appMode: 'practice',
   viewMode: 'composite',
   labelMode: 'interval',
   scaleKeyId: MVP_KEY.id,
@@ -32,6 +36,19 @@ const DEFAULT_SETTINGS: AppSettings = {
   chordId: MVP_CHORD.id,
   volume: 80,
 };
+
+function isAppMode(value: unknown): value is AppMode {
+  return value === 'practice' || value === 'library';
+}
+
+export function sanitizeMusicSelectionIds(
+  settings: Pick<AppSettings, 'scaleId' | 'chordId'>,
+): Pick<AppSettings, 'scaleId' | 'chordId'> {
+  return {
+    scaleId: isScaleId(settings.scaleId) ? settings.scaleId : MVP_SCALE.id,
+    chordId: isChordId(settings.chordId) ? settings.chordId : MVP_CHORD.id,
+  };
+}
 
 function clampVolume(value: unknown): number {
   if (typeof value !== 'number' || Number.isNaN(value)) {
@@ -68,7 +85,11 @@ export function loadSettings(): AppSettings {
           : DEFAULT_SETTINGS.chordKeyId,
     );
 
-    return {
+    const base: AppSettings = {
+      appMode:
+        parsed.appMode && isAppMode(parsed.appMode)
+          ? parsed.appMode
+          : DEFAULT_SETTINGS.appMode,
       viewMode:
         parsed.viewMode && isFretboardViewMode(parsed.viewMode)
           ? parsed.viewMode
@@ -89,6 +110,7 @@ export function loadSettings(): AppSettings {
           : DEFAULT_SETTINGS.chordId,
       volume: clampVolume(parsed.volume),
     };
+    return { ...base, ...sanitizeMusicSelectionIds(base) };
   } catch {
     return { ...DEFAULT_SETTINGS };
   }

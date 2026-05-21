@@ -1,3 +1,5 @@
+import { loadCustomLibrary } from '../music-library/storage';
+
 export interface ChordDef {
   id: string;
   name: string;
@@ -40,9 +42,12 @@ export const CHORDS: readonly ChordDef[] = [
 export const MVP_CHORD = CHORDS[3];
 
 export function findChordById(id: string): ChordDef | undefined {
-  return CHORDS.find((c) => c.id === id);
+  return (
+    CHORDS.find((c) => c.id === id) ??
+    loadCustomLibrary().chords.find((c) => c.id === id)
+  );
 }
 
 export function isChordId(id: string): boolean {
-  return CHORDS.some((c) => c.id === id);
+  return findChordById(id) !== undefined;
 }

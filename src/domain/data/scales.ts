@@ -1,3 +1,5 @@
+import { loadCustomLibrary } from '../music-library/storage';
+
 export interface ScaleDef {
   id: string;
   name: string;
@@ -94,9 +96,12 @@ export const SCALES: readonly ScaleDef[] = [
 export const MVP_SCALE = SCALES[0];
 
 export function findScaleById(id: string): ScaleDef | undefined {
-  return SCALES.find((s) => s.id === id);
+  return (
+    SCALES.find((s) => s.id === id) ??
+    loadCustomLibrary().scales.find((s) => s.id === id)
+  );
 }
 
 export function isScaleId(id: string): boolean {
-  return SCALES.some((s) => s.id === id);
+  return findScaleById(id) !== undefined;
 }

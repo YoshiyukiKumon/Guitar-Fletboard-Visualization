@@ -1,7 +1,11 @@
 import { chordRootOptionsForScaleKey } from '../domain/chord-root-options';
-import { CHORDS } from '../domain/data/chords';
 import { KEYS, findKeyById } from '../domain/data/keys';
-import { SCALES } from '../domain/data/scales';
+import {
+  displayChordName,
+  displayScaleName,
+  listChords,
+  listScales,
+} from '../domain/music-library/registry';
 
 export interface MusicSelectorValues {
   scaleKeyId: string;
@@ -23,6 +27,14 @@ export function createMusicSelectors(
 ): HTMLElement {
   const scaleKey = findKeyById(values.scaleKeyId) ?? KEYS[0];
   const chordRootOptions = chordRootOptionsForScaleKey(scaleKey);
+  const scaleOptions = listScales().map(({ def, source }) => ({
+    id: def.id,
+    name: displayScaleName(def, source),
+  }));
+  const chordOptions = listChords().map(({ def, source }) => ({
+    id: def.id,
+    name: displayChordName(def, source),
+  }));
 
   const section = document.createElement('section');
   section.className = 'music-selectors';
@@ -43,7 +55,7 @@ export function createMusicSelectors(
     createSelectField({
       id: 'scale-select',
       label: 'スケール',
-      items: SCALES,
+      items: scaleOptions,
       value: values.scaleId,
       onChange: callbacks.onScaleChange,
     }),
@@ -65,7 +77,7 @@ export function createMusicSelectors(
     createSelectField({
       id: 'chord-select',
       label: 'コード',
-      items: CHORDS,
+      items: chordOptions,
       value: values.chordId,
       onChange: callbacks.onChordChange,
     }),

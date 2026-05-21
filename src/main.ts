@@ -2,9 +2,14 @@ import './styles/main.css';
 import { tonePlayer } from './audio/tone-player';
 import { remapChordKeyIdForScaleKey } from './domain/chord-root-options';
 import { findKeyById } from './domain/data/keys';
-import { loadSettings, saveSettings } from './app/storage';
+import {
+  loadSettings,
+  sanitizeMusicSelectionIds,
+  saveSettings,
+} from './app/storage';
 import type { AppSettings } from './app/storage';
 import { renderApp } from './ui/app-shell';
+import type { LibraryViewState } from './ui/library-view';
 
 const appRootEl = document.querySelector('#app');
 if (!(appRootEl instanceof HTMLDivElement)) {
@@ -13,7 +18,18 @@ if (!(appRootEl instanceof HTMLDivElement)) {
 const appRoot = appRootEl;
 
 let settings = loadSettings();
+let libraryState: LibraryViewState = {
+  tab: 'scale',
+  selectedScaleId: null,
+  selectedChordId: null,
+};
+
 tonePlayer.setVolume(settings.volume);
+
+function applySanitizedMusicIds(): void {
+  const next = sanitizeMusicSelectionIds(settings);
+  settings = { ...settings, ...next };
+}
 
 function refresh(partial?: Partial<AppSettings>): void {
   if (partial) {
@@ -23,6 +39,20 @@ function refresh(partial?: Partial<AppSettings>): void {
     tonePlayer.setVolume(settings.volume);
   }
   renderApp(appRoot, settings, {
+    libraryState,
+    onLibraryStateChange: (state) => {
+      libraryState = state;
+      refresh();
+    },
+    onLibraryChanged: () => {
+      applySanitizedMusicIds();
+      saveSettings(settings);
+      refresh();
+    },
+    onAppModeChange: (appMode) => {
+      saveSettings({ ...settings, appMode });
+      refresh({ appMode });
+    },
     onViewModeChange: (viewMode) => {
       saveSettings({ ...settings, viewMode });
       refresh({ viewMode });
@@ -60,5 +90,6 @@ function refresh(partial?: Partial<AppSettings>): void {
   });
 }
 
+applySanitizedMusicIds();
 refresh();
 saveSettings(settings);
