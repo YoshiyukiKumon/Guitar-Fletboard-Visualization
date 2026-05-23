@@ -378,6 +378,12 @@ body {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
   scrollbar-color: #5c4033 transparent;
+  touch-action: pan-x pan-y;
+}
+
+.fretboard__scroll--dragging {
+  cursor: grabbing;
+  user-select: none;
 }
 
 .fretboard__grid {
@@ -421,6 +427,7 @@ body {
   grid-row: 1;
   min-height: var(--header-height);
   height: var(--header-height);
+  pointer-events: none;
 }
 
 .fretboard__head-cell {
@@ -433,6 +440,7 @@ body {
   height: var(--header-height);
   position: relative;
   z-index: 1;
+  pointer-events: none;
 }
 
 .fretboard__head-cell--nut {
@@ -495,6 +503,7 @@ body {
   justify-content: center;
   position: relative;
   z-index: 3;
+  pointer-events: none;
 }
 
 .fretboard__string-name {
@@ -513,6 +522,8 @@ body {
   z-index: 1;
   overflow: visible;
   border-right: 2px solid var(--color-fret-wire);
+  /* 交点本体は透過し、タップボタンのみヒット。横スクロールを妨げない */
+  pointer-events: none;
 }
 
 .fretboard__tap-target {
@@ -526,9 +537,11 @@ body {
   align-items: center;
   justify-content: center;
   z-index: 3;
+  pointer-events: auto;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
-  touch-action: manipulation;
+  /* manipulation だと横スワイプが親スクロールに渡らないことがある */
+  touch-action: pan-x pan-y;
 }
 
 .fretboard__intersection--open .fretboard__tap-target {

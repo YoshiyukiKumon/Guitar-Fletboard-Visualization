@@ -384,6 +384,75 @@ async function runChecks(page) {
   const scrollWidth = await scroll.evaluate((el) => el.clientWidth);
   assert(gridWidth > scrollWidth, 'horizontal scroll required');
 
+  const intersectionPointerEvents = await page
+    .locator('.fretboard__intersection')
+    .first()
+    .evaluate((el) => getComputedStyle(el).pointerEvents);
+  assert(
+    intersectionPointerEvents === 'none',
+    `intersection should pass pointer events for scroll, got ${intersectionPointerEvents}`,
+  );
+
+  await scroll.evaluate((el) => {
+    el.scrollLeft = 0;
+  });
+  const tapTarget = page.locator('button.fretboard__tap-target').first();
+  const tapBox = await tapTarget.boundingBox();
+  assert(!!tapBox, 'tap target box missing for scroll test');
+  await page.mouse.move(tapBox.x + tapBox.width / 2, tapBox.y + tapBox.height / 2);
+  await page.mouse.wheel(120, 0);
+  await page.waitForTimeout(50);
+  const scrollAfterWheelOnTarget = await scroll.evaluate((el) => el.scrollLeft);
+  assert(
+    scrollAfterWheelOnTarget > 0,
+    `wheel over tap target should scroll fretboard (${scrollAfterWheelOnTarget})`,
+  );
+
+  await scroll.evaluate((el) => {
+    el.scrollLeft = 0;
+  });
+  const gapScroll = await page.evaluate(() => {
+    const intersection = document.querySelector('.fretboard__intersection');
+    const scrollEl = document.querySelector('.fretboard__scroll');
+    if (!intersection || !scrollEl) {
+      return null;
+    }
+    scrollEl.scrollLeft = 0;
+    const r = intersection.getBoundingClientRect();
+    const hit = document.elementFromPoint(r.left + 2, r.top + r.height / 2);
+    scrollEl.dispatchEvent(
+      new WheelEvent('wheel', { deltaX: 120, bubbles: true, cancelable: true }),
+    );
+    return {
+      hitClass: hit?.className ?? '',
+      scrollLeft: scrollEl.scrollLeft,
+    };
+  });
+  assert(
+    typeof gapScroll?.hitClass === 'string' &&
+      !gapScroll.hitClass.includes('fretboard__intersection'),
+    `gap in intersection should pass through for scroll, hit ${gapScroll?.hitClass}`,
+  );
+  assert(
+    (gapScroll?.scrollLeft ?? 0) > 0,
+    `wheel in intersection gap should scroll fretboard (${gapScroll?.scrollLeft})`,
+  );
+
+  await scroll.evaluate((el) => {
+    el.scrollLeft = 0;
+  });
+  const dragBox = await tapTarget.boundingBox();
+  await page.mouse.move(dragBox.x + dragBox.width / 2, dragBox.y + dragBox.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(dragBox.x - 80, dragBox.y + dragBox.height / 2, { steps: 8 });
+  await page.mouse.up();
+  await page.waitForTimeout(50);
+  const scrollAfterDrag = await scroll.evaluate((el) => el.scrollLeft);
+  assert(
+    scrollAfterDrag > 0,
+    `drag over tap target should scroll fretboard (${scrollAfterDrag})`,
+  );
+
   await page
     .locator('.label-switcher .segment-switcher__btn')
     .filter({ hasText: /^音名$/ })

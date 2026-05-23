@@ -48,8 +48,120 @@ export function renderFretboard(
   grid.appendChild(inlayLayer);
 
   scroll.appendChild(grid);
+  attachFretboardScrollInteractions(scroll);
   board.appendChild(scroll);
   return board;
+}
+
+const FRETBOARD_SCROLL_DRAG_THRESHOLD_PX = 6;
+
+function horizontalWheelDelta(event: WheelEvent): number {
+  if (Math.abs(event.deltaX) > Math.abs(event.deltaY)) {
+    return event.deltaX;
+  }
+  if (event.shiftKey && event.deltaY !== 0) {
+    return event.deltaY;
+  }
+  return 0;
+}
+
+/** 指板スクロール領域全体で横ホイール・ドラッグスクロールを統一 */
+function attachFretboardScrollInteractions(scroll: HTMLElement): void {
+  scroll.addEventListener(
+    'wheel',
+    (event) => {
+      const delta = horizontalWheelDelta(event);
+      if (delta === 0) {
+        return;
+      }
+
+      const maxLeft = scroll.scrollWidth - scroll.clientWidth;
+      const next = Math.max(0, Math.min(maxLeft, scroll.scrollLeft + delta));
+      if (next === scroll.scrollLeft) {
+        return;
+      }
+
+      scroll.scrollLeft = next;
+      event.preventDefault();
+    },
+    { passive: false },
+  );
+
+  type DragState = {
+    pointerId: number;
+    startX: number;
+    startScrollLeft: number;
+    dragging: boolean;
+  };
+
+  let dragState: DragState | null = null;
+
+  const finishDrag = (event: PointerEvent): void => {
+    if (!dragState || event.pointerId !== dragState.pointerId) {
+      return;
+    }
+    if (dragState.dragging) {
+      scroll.dataset.dragged = '1';
+      scroll.classList.remove('fretboard__scroll--dragging');
+      try {
+        scroll.releasePointerCapture(event.pointerId);
+      } catch {
+        /* pointer capture may already be released */
+      }
+    }
+    dragState = null;
+  };
+
+  scroll.addEventListener(
+    'pointerdown',
+    (event) => {
+      if (event.button !== 0) {
+        return;
+      }
+      delete scroll.dataset.dragged;
+      dragState = {
+        pointerId: event.pointerId,
+        startX: event.clientX,
+        startScrollLeft: scroll.scrollLeft,
+        dragging: false,
+      };
+    },
+    { capture: true },
+  );
+
+  scroll.addEventListener(
+    'pointermove',
+    (event) => {
+      if (!dragState || event.pointerId !== dragState.pointerId) {
+        return;
+      }
+
+      const deltaX = event.clientX - dragState.startX;
+      if (!dragState.dragging) {
+        if (Math.abs(deltaX) < FRETBOARD_SCROLL_DRAG_THRESHOLD_PX) {
+          return;
+        }
+        dragState.dragging = true;
+        scroll.classList.add('fretboard__scroll--dragging');
+        scroll.setPointerCapture(event.pointerId);
+      }
+
+      scroll.scrollLeft = dragState.startScrollLeft - deltaX;
+      event.preventDefault();
+    },
+    { capture: true },
+  );
+
+  scroll.addEventListener('pointerup', finishDrag, { capture: true });
+  scroll.addEventListener('pointercancel', finishDrag, { capture: true });
+}
+
+function shouldSuppressFretboardTapAfterScroll(scroll: HTMLElement): boolean {
+  if (scroll.dataset.dragged !== '1') {
+    return false;
+  }
+  delete scroll.dataset.dragged;
+  return true;
 }
 
 function appendHeaderRow(grid: HTMLElement): void {
@@ -167,6 +279,11 @@ function attachFretTapTarget(
 
   tapTarget.addEventListener('click', (event) => {
     event.stopPropagation();
+    const scroll = tapTarget.closest('.fretboard__scroll');
+    if (scroll instanceof HTMLElement && shouldSuppressFretboardTapAfterScroll(scroll)) {
+      event.preventDefault();
+      return;
+    }
     void tonePlayer.playFret(cell.stringIndex, cell.fret);
   });
 
