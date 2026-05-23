@@ -213,7 +213,7 @@ body {
 .app-controls__tools .volume-control {
   flex: 0 0 auto;
   min-width: 0;
-  max-width: 7.5rem;
+  max-width: 10rem;
 }
 
 @media (min-width: 720px) {
@@ -259,7 +259,6 @@ body {
   min-width: 1.85rem;
   max-width: 1.85rem;
   padding: 0;
-  font-size: 0.5rem;
 }
 
 .segment-switcher__btn:hover {
@@ -299,10 +298,10 @@ body {
 }
 
 .volume-control__slider {
-  width: 3.75rem;
-  flex: 0 1 auto;
-  min-width: 2.25rem;
-  max-width: 4.25rem;
+  width: 5.5rem;
+  flex: 1 1 auto;
+  min-width: 3.5rem;
+  max-width: 6.5rem;
   accent-color: #8a7058;
   cursor: pointer;
 }
@@ -856,18 +855,13 @@ body {
   }
 
   .app-controls__tools .volume-control {
-    max-width: 5.25rem;
+    max-width: 8rem;
   }
 
   .volume-control__slider {
-    width: 2.5rem;
-    min-width: 2rem;
-    max-width: 2.75rem;
-  }
-
-  .app-controls__tools .segment-switcher__btn {
-    padding: 0.3rem 0.45rem;
-    font-size: 0.7rem;
+    width: 4.25rem;
+    min-width: 3.25rem;
+    max-width: 5rem;
   }
 
   .interval-capsule {
