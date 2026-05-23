@@ -28,6 +28,8 @@ import { createMusicSelectors } from './music-selectors';
 import { createSegmentSwitcher } from './segment-switcher';
 import { createVolumeControl } from './volume-control';
 import { renderFretboard } from './fretboard-view';
+import { createDiatonicChordsPanel } from './diatonic-chords-panel';
+import type { DiatonicChordPlayPayload } from '../domain/diatonic-chords';
 
 const APP_MODES = ['practice', 'library'] as const;
 const APP_MODE_LABELS: Record<(typeof APP_MODES)[number], string> = {
@@ -43,6 +45,8 @@ export interface AppRenderOptions {
   onScaleChange: (scaleId: string) => void;
   onChordKeyChange: (keyId: string) => void;
   onChordChange: (chordId: string) => void;
+  onDiatonicChordApply: (chordKeyId: string, chordId: string) => void;
+  onDiatonicChordPlay: (payload: DiatonicChordPlayPayload) => void;
   onVolumeChange: (volume: number) => void;
   libraryState: LibraryViewState;
   onLibraryStateChange: (state: LibraryViewState) => void;
@@ -129,6 +133,14 @@ export function renderApp(
   root.appendChild(renderFretboard(model, settings.viewMode, settings.labelMode));
 
   root.appendChild(createTonePanel(model));
+  root.appendChild(
+    createDiatonicChordsPanel(model, {
+      chordKeyId: settings.chordKeyId,
+      chordId: settings.chordId,
+      onApply: options.onDiatonicChordApply,
+      onPlay: options.onDiatonicChordPlay,
+    }),
+  );
 }
 
 function createTonePanel(model: FretboardModel): HTMLElement {

@@ -167,9 +167,13 @@ function attachPlayableCapsule(
   } else {
     capsule.textContent = displayLabelForCell(cell, labelMode, viewMode);
   }
+  const pitchForAria =
+    labelMode === 'kana'
+      ? displayLabelForCell(cell, 'kana', viewMode)
+      : cell.noteName;
   capsule.setAttribute(
     'aria-label',
-    `${cell.noteName}（${STRING_LABEL_FOR_ARIA(cell.stringIndex)}弦 ${cell.fret} フレット）を再生`,
+    `${pitchForAria}（${STRING_LABEL_FOR_ARIA(cell.stringIndex)}弦 ${cell.fret} フレット）を再生`,
   );
 
   const play = (): void => {

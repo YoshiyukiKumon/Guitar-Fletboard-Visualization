@@ -107,7 +107,7 @@ async function runChecks(page) {
   assert((await labelSwitcherTitle.textContent()) === '指板', 'label switcher title');
 
   const labelTabs = page.locator('.label-switcher .segment-switcher__btn');
-  assert((await labelTabs.count()) === 3, 'expected 3 label mode tabs');
+  assert((await labelTabs.count()) === 4, 'expected 4 label mode tabs');
   assert((await labelTabs.nth(0).textContent()) === '●', 'first label tab should be dot');
   assert(
     (await labelTabs.nth(0).getAttribute('aria-selected')) === 'true',
@@ -372,9 +372,18 @@ async function runChecks(page) {
   const scrollWidth = await scroll.evaluate((el) => el.clientWidth);
   assert(gridWidth > scrollWidth, 'horizontal scroll required');
 
-  await page.locator('.label-switcher .segment-switcher__btn', { hasText: '音名' }).click();
+  await page
+    .locator('.label-switcher .segment-switcher__btn')
+    .filter({ hasText: /^音名$/ })
+    .click();
   const noteNameCount = await page.locator('.interval-capsule', { hasText: 'C' }).count();
   assert(noteNameCount > 0, 'note mode should show pitch names like C');
+
+  await page
+    .locator('.label-switcher .segment-switcher__btn', { hasText: '音名(カナ)' })
+    .click();
+  const kanaRoot = page.locator('.interval-capsule--scale-root').first();
+  assert((await kanaRoot.textContent()) === 'ド', 'kana mode should show ド for C root');
 
   await page.locator('.label-switcher .segment-switcher__btn', { hasText: '●' }).click();
   const dotCapsule = page.locator('.interval-capsule--dot-circle').first();
@@ -488,6 +497,31 @@ async function runChecks(page) {
   const tonePanel = page.locator('.tone-panel__tones').first();
   assert((await tonePanel.textContent())?.includes('Dorian') === false, 'panel shows tone labels not scale name');
   assert((await tonePanel.textContent())?.includes('R'), 'scale tones panel should list R');
+
+  const diatonicSection = page.locator('.diatonic-chords');
+  assert((await diatonicSection.count()) === 1, 'diatonic chords section missing');
+  const diatonicCells = page.locator('.diatonic-chords__cell');
+  assert((await diatonicCells.count()) === 7, 'dorian should show 7 diatonic chord cells');
+  assert(
+    (await page.locator('.diatonic-chords__btn--play').count()) === 7,
+    'each diatonic cell should have a play button',
+  );
+  assert(
+    (await page.locator('.diatonic-chords__btn--apply').count()) === 7,
+    'each diatonic cell should have an apply button',
+  );
+  assert(
+    (await page.locator('.diatonic-chords__relative').first().textContent()) === 'Im7',
+    'A dorian I degree should be Im7',
+  );
+
+  await page.locator('.diatonic-chords__btn--apply').nth(3).click();
+  assert((await chordKeySelect.inputValue()) === 'A', 'diatonic cell should set chord key');
+  assert((await chordSelect.inputValue()) === '7', 'diatonic cell should set chord type');
+  assert(
+    (await page.locator('.diatonic-chords__cell--active').count()) === 1,
+    'one diatonic cell should be active',
+  );
 
   return {
     scaleKeyId: await scaleKeySelect.inputValue(),

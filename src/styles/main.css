@@ -728,6 +728,129 @@ body {
   color: #b8aea3;
 }
 
+.diatonic-chords {
+  margin-top: 1.25rem;
+  padding: 0.75rem 1rem;
+  background: #2a221c;
+  border-radius: 8px;
+  color: #f5f0eb;
+}
+
+.diatonic-chords__title {
+  margin: 0 0 0.65rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #b8aea3;
+}
+
+.diatonic-chords__message {
+  margin: 0;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: #b8aea3;
+}
+
+.diatonic-chords__scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.diatonic-chords__grid {
+  display: grid;
+  grid-template-columns: repeat(var(--diatonic-cols, 7), minmax(4.5rem, 1fr));
+  gap: 0.35rem;
+  min-width: min-content;
+}
+
+.diatonic-chords__cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.45rem 0.35rem;
+  border: 1px solid #4a3d32;
+  border-radius: 8px;
+  background: #3d3228;
+  text-align: center;
+}
+
+.diatonic-chords__cell--active {
+  border-color: #e07b39;
+  background: #4a3220;
+}
+
+.diatonic-chords__labels {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+}
+
+.diatonic-chords__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+}
+
+.diatonic-chords__btn {
+  border: 1px solid #6a5a4a;
+  border-radius: 999px;
+  padding: 0.2rem 0.45rem;
+  font-size: 0.68rem;
+  font-family: inherit;
+  color: #f5f0eb;
+  background: #4a3220;
+  cursor: pointer;
+  line-height: 1.2;
+}
+
+.diatonic-chords__btn--play {
+  min-width: 1.65rem;
+  padding-inline: 0.35rem;
+}
+
+.diatonic-chords__btn:hover {
+  border-color: #8a7058;
+  background: #5c4033;
+}
+
+.diatonic-chords__btn:focus-visible {
+  outline: 2px solid #b8aea3;
+  outline-offset: 2px;
+}
+
+.diatonic-chords__btn--apply {
+  border-color: #8a7058;
+}
+
+.diatonic-chords__cell--active .diatonic-chords__btn--apply {
+  border-color: #e07b39;
+  background: #5c4033;
+}
+
+.diatonic-chords__cell--unmapped {
+  opacity: 0.92;
+}
+
+.diatonic-chords__cell--unmapped .diatonic-chords__btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.diatonic-chords__relative {
+  font-size: 0.72rem;
+  line-height: 1.2;
+  color: #b8aea3;
+}
+
+.diatonic-chords__actual {
+  font-size: 0.82rem;
+  line-height: 1.2;
+  color: #f5f0eb;
+}
+
 @media (max-width: 480px) {
   :root {
     --fret-col-width: 2.55rem;

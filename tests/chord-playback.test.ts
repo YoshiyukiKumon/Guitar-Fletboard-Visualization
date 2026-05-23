@@ -50,6 +50,13 @@ describe('orderedSemitonesForChordPlayback', () => {
     ]);
   });
 
+  it('matches 6 in-octave playback with fifth', () => {
+    const chord = CHORDS.find((c) => c.id === '6')!;
+    expect(orderedSemitonesForChordPlayback(chord.tones, chord.name)).toEqual([
+      0, 4, 7, 9,
+    ]);
+  });
+
   it('raises 13 on 7(13) chord', () => {
     const chord = CHORDS.find((c) => c.id === '7-13')!;
     expect(orderedSemitonesForChordPlayback(chord.tones, chord.name)).toEqual([

@@ -73,13 +73,31 @@ export const SCALES: readonly ScaleDef[] = [
   },
   {
     id: 'whole-half-dim',
-    name: 'Whole/Half Deminish',
-    tones: ['R', '2 / 9', 'm3 / #9', '4 / 11', 'b5 / #11', '+5 / b13', '6 / 13'],
+    name: 'Whole/Half Diminish',
+    tones: [
+      'R',
+      '2 / 9',
+      'm3 / #9',
+      '4 / 11',
+      'b5 / #11',
+      '+5 / b13',
+      '6 / 13',
+      '△7',
+    ],
   },
   {
     id: 'half-whole-dim',
     name: 'Half/Whole Diminish',
-    tones: ['R', 'b2 / b9', 'm3 / #9', '3', 'b5 / #11', '5', '6 / 13'],
+    tones: [
+      'R',
+      'b2 / b9',
+      'm3 / #9',
+      '3',
+      'b5 / #11',
+      '5',
+      '6 / 13',
+      'b7',
+    ],
   },
   {
     id: 'whole-tone',
@@ -90,6 +108,20 @@ export const SCALES: readonly ScaleDef[] = [
     id: 'kumoi-penta',
     name: 'KUMOI Penta Tonics',
     tones: ['R', '2 / 9', 'm3 / #9', '5', '6 / 13'],
+  },
+  {
+    id: 'diminished-6th',
+    name: 'Diminished 6th',
+    tones: [
+      'R',
+      '2 / 9',
+      '3',
+      '4 / 11',
+      '5',
+      '+5 / b13',
+      '6 / 13',
+      '△7',
+    ],
   },
 ];
 

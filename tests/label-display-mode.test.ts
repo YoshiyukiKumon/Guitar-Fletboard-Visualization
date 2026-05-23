@@ -22,6 +22,12 @@ describe('label display mode', () => {
     expect(displayLabelForCell(cell, 'dot', 'scale')).toBe('');
     expect(displayLabelForCell(cell, 'interval', 'scale')).toBe('3');
     expect(displayLabelForCell(cell, 'note', 'scale')).toBe('E');
+    expect(displayLabelForCell(cell, 'kana', 'scale')).toBe('ミ');
+  });
+
+  it('accepts kana label mode', () => {
+    expect(isLabelDisplayMode('kana')).toBe(true);
+    expect(LABEL_DISPLAY_MODES).toContain('kana');
   });
 
   it('uses chord-root interval in chord view', () => {

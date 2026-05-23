@@ -67,6 +67,14 @@ export class TonePlayer {
     await this.playChordSemitones(chordKey, semitones, 'block');
   }
 
+  /** ルートからの半音オフセット列で和音を同時再生（ChordDef 未定義のダイアトニック列向け） */
+  async playChordSemitonesFromRoot(
+    chordKey: KeyDef,
+    semitonesFromRoot: readonly number[],
+  ): Promise<void> {
+    await this.playChordSemitones(chordKey, [...semitonesFromRoot], 'block');
+  }
+
   /** コードトーンをルートから順にアルペジオ再生 */
   async playChordArpeggio(chordKey: KeyDef, chord: ChordDef): Promise<void> {
     const semitones = orderedSemitonesForChordArpeggio(

@@ -2,6 +2,7 @@ import './styles/main.css';
 import { tonePlayer } from './audio/tone-player';
 import { remapChordKeyIdForScaleKey } from './domain/chord-root-options';
 import { findKeyById } from './domain/data/keys';
+import { findChordById } from './domain/data/chords';
 import {
   loadSettings,
   sanitizeMusicSelectionIds,
@@ -81,6 +82,30 @@ function refresh(partial?: Partial<AppSettings>): void {
     onChordChange: (chordId) => {
       saveSettings({ ...settings, chordId });
       refresh({ chordId });
+    },
+    onDiatonicChordApply: (chordKeyId, chordId) => {
+      saveSettings({ ...settings, chordKeyId, chordId });
+      refresh({ chordKeyId, chordId });
+    },
+    onDiatonicChordPlay: (payload) => {
+      const chordKey = findKeyById(payload.chordKeyId);
+      if (chordKey === undefined) {
+        return;
+      }
+      if (payload.chordId !== null) {
+        const chord = findChordById(payload.chordId);
+        if (chord === undefined) {
+          return;
+        }
+        void tonePlayer.playChord(chordKey, chord);
+        return;
+      }
+      if (payload.playbackSemitones.length > 0) {
+        void tonePlayer.playChordSemitonesFromRoot(
+          chordKey,
+          payload.playbackSemitones,
+        );
+      }
     },
     onVolumeChange: (volume) => {
       settings = { ...settings, volume };

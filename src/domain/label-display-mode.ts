@@ -1,16 +1,19 @@
 import type { FretboardViewMode } from './fretboard-view-mode';
+import { kanaNoteNameFromWestern } from './note-names';
 
-export type LabelDisplayMode = 'interval' | 'note' | 'dot';
+export type LabelDisplayMode = 'interval' | 'note' | 'kana' | 'dot';
 
 export const LABEL_DISPLAY_MODES: readonly LabelDisplayMode[] = [
   'dot',
   'interval',
   'note',
+  'kana',
 ] as const;
 
 export const LABEL_MODE_LABELS: Record<LabelDisplayMode, string> = {
   interval: 'インターバル',
   note: '音名',
+  kana: '音名(カナ)',
   dot: '●',
 };
 
@@ -38,6 +41,9 @@ export function displayLabelForCell(
   }
   if (mode === 'note') {
     return cell.noteName;
+  }
+  if (mode === 'kana') {
+    return kanaNoteNameFromWestern(cell.noteName);
   }
   return intervalLabelForView(cell, viewMode);
 }

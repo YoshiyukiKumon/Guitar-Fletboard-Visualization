@@ -201,6 +201,41 @@ function toneLabelToSemitone(token: string): number {
   return map[token] ?? 0;
 }
 
+const KANA_BY_LETTER: Record<string, string> = {
+  C: 'ド',
+  D: 'レ',
+  E: 'ミ',
+  F: 'ファ',
+  G: 'ソ',
+  A: 'ラ',
+  B: 'シ',
+};
+
+/**
+ * 西洋音名（スペル済み）を固定ドのカナ表記に変換する。
+ * 例: C → ド, C# → ド♯, Bb → シ♭, B# → シ♯
+ */
+export function kanaNoteNameFromWestern(westernName: string): string {
+  const match = /^([A-G])(bb|##|b|#)?$/.exec(westernName);
+  if (match === null) {
+    return westernName;
+  }
+  const base = KANA_BY_LETTER[match[1]];
+  if (base === undefined) {
+    return westernName;
+  }
+  const accidental = match[2] ?? '';
+  if (accidental === '') {
+    return base;
+  }
+  const suffix = accidental
+    .replace(/##/g, '♯♯')
+    .replace(/bb/g, '♭♭')
+    .replace(/#/g, '♯')
+    .replace(/b/g, '♭');
+  return base + suffix;
+}
+
 /** 表記に # と b が混在していないか（検証用） */
 export function usesMixedAccidentals(names: readonly string[]): boolean {
   const hasSharp = names.some((n) => n.includes('#'));
