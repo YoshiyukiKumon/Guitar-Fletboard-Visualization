@@ -1,4 +1,6 @@
 /** 再生楽器 ID（`public/samples/<sampleDir>/` と対応） */
+import { sampleBaseUrlForSampleDir } from '../../app/asset-url';
+
 export const INSTRUMENT_IDS = [
   'acoustic-steel',
   'acoustic-nylon',
@@ -158,5 +160,5 @@ export function sampleBaseUrlForInstrument(
   if (definition.sampleDir === undefined) {
     return undefined;
   }
-  return `${import.meta.env.BASE_URL}samples/${definition.sampleDir}/`;
+  return sampleBaseUrlForSampleDir(definition.sampleDir);
 }

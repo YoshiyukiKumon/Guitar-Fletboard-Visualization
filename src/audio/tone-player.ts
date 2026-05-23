@@ -46,7 +46,7 @@ interface InstrumentSampleState {
   manifest: SampleManifest | null;
   manifestPromise: Promise<SampleManifest | null> | null;
   bufferByFile: Map<string, AudioBuffer>;
-  samplesDisabled: boolean;
+  prefetchStarted: boolean;
 }
 
 export class TonePlayer {
@@ -75,18 +75,31 @@ export class TonePlayer {
     }
     this.instrumentId = normalized;
     this.sessionId += 1;
+    const state = this.getSampleState(normalized);
+    state.prefetchStarted = false;
   }
 
   getInstrument(): InstrumentId {
     return this.instrumentId;
   }
 
+  /** iOS Safari 向け: ユーザー操作の同期スタック内で AudioContext を解放する */
+  unlockFromUserGesture(): void {
+    const ctx = this.ensureContextSync();
+    if (ctx.state === 'suspended') {
+      void ctx.resume();
+    }
+    this.playSilentBuffer(ctx);
+    void this.prefetchCurrentInstrument();
+  }
+
   async previewInstrument(instrumentId: InstrumentId): Promise<void> {
+    this.unlockFromUserGesture();
     const previous = this.instrumentId;
     const normalized = normalizeInstrumentId(instrumentId);
     this.instrumentId = normalized;
     const ctx = await this.prepareContext();
-    await this.scheduleNote(
+    this.scheduleNote(
       ctx,
       PREVIEW_MIDI,
       ctx.currentTime + 0.01,
@@ -96,6 +109,7 @@ export class TonePlayer {
   }
 
   async playScale(scaleKey: KeyDef, scale: ScaleDef): Promise<void> {
+    this.unlockFromUserGesture();
     const semitones = orderedSemitonesFromTones(scale.tones);
     if (semitones.length === 0) {
       return;
@@ -114,15 +128,16 @@ export class TonePlayer {
         scaleKey.pitchClass,
         semitone,
       );
-      await this.scheduleNote(ctx, midi, time, SCALE_NOTE_DURATION_SEC);
+      this.scheduleNote(ctx, midi, time, SCALE_NOTE_DURATION_SEC);
       time += SCALE_NOTE_DURATION_SEC + SCALE_NOTE_GAP_SEC;
     }
   }
 
   async playFret(stringIndex: number, fret: number): Promise<void> {
+    this.unlockFromUserGesture();
     const ctx = await this.prepareContext();
     const midi = midiNoteForFret(stringIndex, fret);
-    await this.scheduleNote(
+    this.scheduleNote(
       ctx,
       midi,
       ctx.currentTime + 0.01,
@@ -131,6 +146,7 @@ export class TonePlayer {
   }
 
   async playChord(chordKey: KeyDef, chord: ChordDef): Promise<void> {
+    this.unlockFromUserGesture();
     const semitones = orderedSemitonesForChordPlayback(
       chord.tones,
       chord.name,
@@ -142,10 +158,12 @@ export class TonePlayer {
     chordKey: KeyDef,
     semitonesFromRoot: readonly number[],
   ): Promise<void> {
+    this.unlockFromUserGesture();
     await this.playChordSemitones(chordKey, [...semitonesFromRoot], 'block');
   }
 
   async playChordArpeggio(chordKey: KeyDef, chord: ChordDef): Promise<void> {
+    this.unlockFromUserGesture();
     const semitones = orderedSemitonesForChordArpeggio(
       chord.tones,
       chord.name,
@@ -185,7 +203,7 @@ export class TonePlayer {
           chordKey.pitchClass,
           semitone,
         );
-        await this.scheduleNote(ctx, midi, noteStart, CHORD_DURATION_SEC);
+        this.scheduleNote(ctx, midi, noteStart, CHORD_DURATION_SEC);
       }
       return;
     }
@@ -199,7 +217,7 @@ export class TonePlayer {
         chordKey.pitchClass,
         semitone,
       );
-      await this.scheduleNote(ctx, midi, time, SCALE_NOTE_DURATION_SEC);
+      this.scheduleNote(ctx, midi, time, SCALE_NOTE_DURATION_SEC);
       time += SCALE_NOTE_DURATION_SEC + SCALE_NOTE_GAP_SEC;
     }
   }
@@ -219,24 +237,85 @@ export class TonePlayer {
         manifest: null,
         manifestPromise: null,
         bufferByFile: new Map(),
-        samplesDisabled: false,
+        prefetchStarted: false,
       };
       this.sampleStateByInstrument.set(instrumentId, state);
     }
     return state;
   }
 
-  private async prepareContext(): Promise<AudioContext> {
+  private ensureContextSync(): AudioContext {
     if (!this.context) {
       this.context = new AudioContext();
       this.masterGain = this.context.createGain();
       this.masterGain.gain.value = this.volume;
       this.masterGain.connect(this.context.destination);
     }
-    if (this.context.state === 'suspended') {
-      await this.context.resume();
-    }
     return this.context;
+  }
+
+  private playSilentBuffer(ctx: AudioContext): void {
+    try {
+      const buffer = ctx.createBuffer(1, 1, ctx.sampleRate);
+      const source = ctx.createBufferSource();
+      source.buffer = buffer;
+      const destination = this.masterGain ?? ctx.destination;
+      source.connect(destination);
+      source.start(0);
+      source.stop(0);
+    } catch {
+      // ignore unlock failures
+    }
+  }
+
+  private async prepareContext(): Promise<AudioContext> {
+    const ctx = this.ensureContextSync();
+    if (ctx.state === 'suspended') {
+      await ctx.resume();
+    }
+    return ctx;
+  }
+
+  private async prefetchCurrentInstrument(): Promise<void> {
+    const definition = this.getInstrumentDefinition();
+    if (definition.kind !== 'sample') {
+      return;
+    }
+
+    const state = this.getSampleState(definition.id);
+    if (state.prefetchStarted) {
+      return;
+    }
+    state.prefetchStarted = true;
+
+    const manifest = await this.loadManifest(definition);
+    if (manifest === null || !this.context) {
+      return;
+    }
+
+    const ctx = this.context;
+    const files = [...new Set(manifest.entries.map((entry) => entry.file))];
+    await Promise.all(
+      files.map((file) => this.loadBuffer(ctx, definition, file)),
+    );
+  }
+
+  private async prefetchSampleForMidi(
+    definition: InstrumentDefinition,
+    midi: number,
+  ): Promise<void> {
+    if (definition.kind !== 'sample' || !this.context) {
+      return;
+    }
+    const manifest = await this.loadManifest(definition);
+    if (manifest === null) {
+      return;
+    }
+    const mapping = nearestSampleForMidi(midi, manifest.entries);
+    if (mapping === undefined) {
+      return;
+    }
+    await this.loadBuffer(this.context, definition, mapping.file);
   }
 
   private async loadManifest(
@@ -301,12 +380,12 @@ export class TonePlayer {
     }
   }
 
-  private async scheduleNote(
+  private scheduleNote(
     ctx: AudioContext,
     midi: number,
     start: number,
     duration: number,
-  ): Promise<void> {
+  ): void {
     const definition = this.getInstrumentDefinition();
 
     if (definition.kind === 'synth') {
@@ -320,33 +399,28 @@ export class TonePlayer {
       return;
     }
 
-    if (instrumentUsesSamples(definition) && !this.getSampleState(definition.id).samplesDisabled) {
-      const played = await this.scheduleSampleNote(
-        ctx,
-        definition,
-        midi,
-        start,
-        duration,
-      );
-      if (played) {
-        return;
-      }
-      this.getSampleState(definition.id).samplesDisabled = true;
+    if (
+      instrumentUsesSamples(definition)
+      && this.tryScheduleCachedSampleNote(ctx, definition, midi, start, duration)
+    ) {
+      return;
     }
 
     const preset = getSynthPreset(definition.synthPresetId);
     this.scheduleSynthNote(ctx, midi, start, duration, preset);
   }
 
-  private async scheduleSampleNote(
+  private tryScheduleCachedSampleNote(
     ctx: AudioContext,
     definition: InstrumentDefinition,
     midi: number,
     start: number,
     _duration: number,
-  ): Promise<boolean> {
-    const manifest = await this.loadManifest(definition);
+  ): boolean {
+    const state = this.getSampleState(definition.id);
+    const manifest = state.manifest;
     if (manifest === null) {
+      void this.prefetchSampleForMidi(definition, midi);
       return false;
     }
 
@@ -355,15 +429,35 @@ export class TonePlayer {
       return false;
     }
 
-    const buffer = await this.loadBuffer(ctx, definition, mapping.file);
-    if (buffer === null) {
+    const buffer = state.bufferByFile.get(mapping.file);
+    if (buffer === undefined) {
+      void this.prefetchSampleForMidi(definition, midi);
       return false;
     }
 
+    this.scheduleSampleFromBuffer(
+      ctx,
+      definition,
+      buffer,
+      midi,
+      mapping.rootMidi,
+      start,
+    );
+    return true;
+  }
+
+  private scheduleSampleFromBuffer(
+    ctx: AudioContext,
+    definition: InstrumentDefinition,
+    buffer: AudioBuffer,
+    midi: number,
+    rootMidi: number,
+    start: number,
+  ): void {
     const source = ctx.createBufferSource();
     const gain = ctx.createGain();
     source.buffer = buffer;
-    const rate = playbackRateForMidi(midi, mapping.rootMidi) * samplePitchRate(definition);
+    const rate = playbackRateForMidi(midi, rootMidi) * samplePitchRate(definition);
     source.playbackRate.value = rate;
 
     const naturalDuration = buffer.duration / rate;
@@ -388,7 +482,6 @@ export class TonePlayer {
     gain.connect(destination);
     source.start(start);
     source.stop(start + playDuration + 0.02);
-    return true;
   }
 
   private scheduleSynthNote(

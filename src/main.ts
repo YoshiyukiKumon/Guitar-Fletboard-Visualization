@@ -28,6 +28,16 @@ let libraryState: LibraryViewState = {
 tonePlayer.setVolume(settings.volume);
 tonePlayer.setInstrument(settings.instrumentId);
 
+function installAudioUnlock(): void {
+  const unlock = (): void => {
+    tonePlayer.unlockFromUserGesture();
+  };
+  document.addEventListener('touchstart', unlock, { passive: true, capture: true });
+  document.addEventListener('pointerdown', unlock, { capture: true });
+}
+
+installAudioUnlock();
+
 function applySanitizedMusicIds(): void {
   const next = sanitizeMusicSelectionIds(settings);
   settings = { ...settings, ...next };
