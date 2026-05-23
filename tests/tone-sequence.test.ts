@@ -67,13 +67,13 @@ describe('midiNoteNumber', () => {
 });
 
 describe('midiNoteNumberForScaleChordPlayback', () => {
-  it('keeps C through Eb roots in octave 4', () => {
-    expect(midiNoteNumberForScaleChordPlayback(0, 0)).toBe(60);
-    expect(midiNoteNumberForScaleChordPlayback(3, 0)).toBe(63);
+  it('drops C through F# roots by one octave', () => {
+    expect(midiNoteNumberForScaleChordPlayback(0, 0)).toBe(48);
+    expect(midiNoteNumberForScaleChordPlayback(6, 0)).toBe(54);
   });
 
-  it('drops E and higher roots by one octave', () => {
-    expect(midiNoteNumberForScaleChordPlayback(4, 0)).toBe(52);
-    expect(midiNoteNumberForScaleChordPlayback(9, 0)).toBe(57);
+  it('drops G and higher roots by two octaves', () => {
+    expect(midiNoteNumberForScaleChordPlayback(7, 0)).toBe(43);
+    expect(midiNoteNumberForScaleChordPlayback(9, 0)).toBe(45);
   });
 });

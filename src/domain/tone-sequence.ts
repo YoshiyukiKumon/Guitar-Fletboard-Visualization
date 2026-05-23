@@ -35,8 +35,11 @@ export function midiNoteNumber(rootPitchClass: number, semitone: number): number
   return 60 + rootPitchClass + semitone;
 }
 
-/** E（pitch class 4）以上のルートはスケール/コード再生を 1 オクターブ下げる */
-export const SCALE_CHORD_PLAYBACK_OCTAVE_DROP_FROM_PC = 4;
+/** スケール/コード再生の基本オクターブ下げ（半音数） */
+export const SCALE_CHORD_PLAYBACK_OCTAVE_DROP_SEMITONES = 12;
+
+/** G 以上（pitch class 7+）は 2 オクターブ下げ、C〜F# は 1 オクターブ下げ */
+export const SCALE_CHORD_PLAYBACK_EXTRA_DROP_FROM_PC = 7;
 
 /** スケール・コード再生用 MIDI（指板タップは `midiNoteNumber` のまま） */
 export function midiNoteNumberForScaleChordPlayback(
@@ -44,10 +47,11 @@ export function midiNoteNumberForScaleChordPlayback(
   semitone: number,
 ): number {
   const midi = midiNoteNumber(rootPitchClass, semitone);
-  if (rootPitchClass >= SCALE_CHORD_PLAYBACK_OCTAVE_DROP_FROM_PC) {
-    return midi - 12;
-  }
-  return midi;
+  const drop =
+    rootPitchClass >= SCALE_CHORD_PLAYBACK_EXTRA_DROP_FROM_PC
+      ? SCALE_CHORD_PLAYBACK_OCTAVE_DROP_SEMITONES * 2
+      : SCALE_CHORD_PLAYBACK_OCTAVE_DROP_SEMITONES;
+  return midi - drop;
 }
 
 /** 表示用スケール名（例: D Major） */
