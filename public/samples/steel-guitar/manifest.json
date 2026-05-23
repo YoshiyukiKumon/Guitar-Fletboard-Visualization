@@ -1,0 +1,331 @@
+{
+  "source": "FreePats FSS Steel-String Acoustic Guitar (small)",
+  "sourceUrl": "https://freepats.zenvoid.org/Guitar/steel-acoustic-guitar.html",
+  "license": "GPL-3.0+ with FreePats sound sample exception (FlameStudios / FreePats)",
+  "entries": [
+    {
+      "midi": 33,
+      "rootMidi": 40,
+      "file": "e2.wav",
+      "source": "E2.wav"
+    },
+    {
+      "midi": 34,
+      "rootMidi": 40,
+      "file": "e2.wav",
+      "source": "E2.wav"
+    },
+    {
+      "midi": 35,
+      "rootMidi": 40,
+      "file": "e2.wav",
+      "source": "E2.wav"
+    },
+    {
+      "midi": 36,
+      "rootMidi": 40,
+      "file": "e2.wav",
+      "source": "E2.wav"
+    },
+    {
+      "midi": 37,
+      "rootMidi": 40,
+      "file": "e2.wav",
+      "source": "E2.wav"
+    },
+    {
+      "midi": 38,
+      "rootMidi": 40,
+      "file": "e2.wav",
+      "source": "E2.wav"
+    },
+    {
+      "midi": 39,
+      "rootMidi": 40,
+      "file": "e2.wav",
+      "source": "E2.wav"
+    },
+    {
+      "midi": 40,
+      "rootMidi": 40,
+      "file": "e2.wav",
+      "source": "E2.wav"
+    },
+    {
+      "midi": 41,
+      "rootMidi": 40,
+      "file": "e2.wav",
+      "source": "E2.wav"
+    },
+    {
+      "midi": 42,
+      "rootMidi": 40,
+      "file": "e2.wav",
+      "source": "E2.wav"
+    },
+    {
+      "midi": 43,
+      "rootMidi": 45,
+      "file": "a2.wav",
+      "source": "A2.wav"
+    },
+    {
+      "midi": 44,
+      "rootMidi": 45,
+      "file": "a2.wav",
+      "source": "A2.wav"
+    },
+    {
+      "midi": 45,
+      "rootMidi": 45,
+      "file": "a2.wav",
+      "source": "A2.wav"
+    },
+    {
+      "midi": 46,
+      "rootMidi": 45,
+      "file": "a2.wav",
+      "source": "A2.wav"
+    },
+    {
+      "midi": 47,
+      "rootMidi": 45,
+      "file": "a2.wav",
+      "source": "A2.wav"
+    },
+    {
+      "midi": 48,
+      "rootMidi": 51,
+      "file": "ds3.wav",
+      "source": "D#3.wav"
+    },
+    {
+      "midi": 49,
+      "rootMidi": 51,
+      "file": "ds3.wav",
+      "source": "D#3.wav"
+    },
+    {
+      "midi": 50,
+      "rootMidi": 51,
+      "file": "ds3.wav",
+      "source": "D#3.wav"
+    },
+    {
+      "midi": 51,
+      "rootMidi": 51,
+      "file": "ds3.wav",
+      "source": "D#3.wav"
+    },
+    {
+      "midi": 52,
+      "rootMidi": 51,
+      "file": "ds3.wav",
+      "source": "D#3.wav"
+    },
+    {
+      "midi": 53,
+      "rootMidi": 51,
+      "file": "ds3.wav",
+      "source": "D#3.wav"
+    },
+    {
+      "midi": 54,
+      "rootMidi": 56,
+      "file": "gs3.wav",
+      "source": "G#3.wav"
+    },
+    {
+      "midi": 55,
+      "rootMidi": 56,
+      "file": "gs3.wav",
+      "source": "G#3.wav"
+    },
+    {
+      "midi": 56,
+      "rootMidi": 56,
+      "file": "gs3.wav",
+      "source": "G#3.wav"
+    },
+    {
+      "midi": 57,
+      "rootMidi": 56,
+      "file": "gs3.wav",
+      "source": "G#3.wav"
+    },
+    {
+      "midi": 58,
+      "rootMidi": 60,
+      "file": "c4.wav",
+      "source": "C4.wav"
+    },
+    {
+      "midi": 59,
+      "rootMidi": 60,
+      "file": "c4.wav",
+      "source": "C4.wav"
+    },
+    {
+      "midi": 60,
+      "rootMidi": 60,
+      "file": "c4.wav",
+      "source": "C4.wav"
+    },
+    {
+      "midi": 61,
+      "rootMidi": 60,
+      "file": "c4.wav",
+      "source": "C4.wav"
+    },
+    {
+      "midi": 62,
+      "rootMidi": 63,
+      "file": "ds4.wav",
+      "source": "D#4.wav"
+    },
+    {
+      "midi": 63,
+      "rootMidi": 63,
+      "file": "ds4.wav",
+      "source": "D#4.wav"
+    },
+    {
+      "midi": 64,
+      "rootMidi": 63,
+      "file": "ds4.wav",
+      "source": "D#4.wav"
+    },
+    {
+      "midi": 65,
+      "rootMidi": 66,
+      "file": "fs4.wav",
+      "source": "F#4.wav"
+    },
+    {
+      "midi": 66,
+      "rootMidi": 66,
+      "file": "fs4.wav",
+      "source": "F#4.wav"
+    },
+    {
+      "midi": 67,
+      "rootMidi": 66,
+      "file": "fs4.wav",
+      "source": "F#4.wav"
+    },
+    {
+      "midi": 68,
+      "rootMidi": 69,
+      "file": "a4.wav",
+      "source": "A4.wav"
+    },
+    {
+      "midi": 69,
+      "rootMidi": 69,
+      "file": "a4.wav",
+      "source": "A4.wav"
+    },
+    {
+      "midi": 70,
+      "rootMidi": 69,
+      "file": "a4.wav",
+      "source": "A4.wav"
+    },
+    {
+      "midi": 71,
+      "rootMidi": 72,
+      "file": "c5.wav",
+      "source": "C5.wav"
+    },
+    {
+      "midi": 72,
+      "rootMidi": 72,
+      "file": "c5.wav",
+      "source": "C5.wav"
+    },
+    {
+      "midi": 73,
+      "rootMidi": 72,
+      "file": "c5.wav",
+      "source": "C5.wav"
+    },
+    {
+      "midi": 74,
+      "rootMidi": 75,
+      "file": "ds5.wav",
+      "source": "D#5.wav"
+    },
+    {
+      "midi": 75,
+      "rootMidi": 75,
+      "file": "ds5.wav",
+      "source": "D#5.wav"
+    },
+    {
+      "midi": 76,
+      "rootMidi": 75,
+      "file": "ds5.wav",
+      "source": "D#5.wav"
+    },
+    {
+      "midi": 77,
+      "rootMidi": 78,
+      "file": "fs5.wav",
+      "source": "F#5.wav"
+    },
+    {
+      "midi": 78,
+      "rootMidi": 78,
+      "file": "fs5.wav",
+      "source": "F#5.wav"
+    },
+    {
+      "midi": 79,
+      "rootMidi": 78,
+      "file": "fs5.wav",
+      "source": "F#5.wav"
+    },
+    {
+      "midi": 80,
+      "rootMidi": 81,
+      "file": "a5.wav",
+      "source": "A5.wav"
+    },
+    {
+      "midi": 81,
+      "rootMidi": 81,
+      "file": "a5.wav",
+      "source": "A5.wav"
+    },
+    {
+      "midi": 82,
+      "rootMidi": 81,
+      "file": "a5.wav",
+      "source": "A5.wav"
+    },
+    {
+      "midi": 83,
+      "rootMidi": 84,
+      "file": "c6.wav",
+      "source": "C6.wav"
+    },
+    {
+      "midi": 84,
+      "rootMidi": 84,
+      "file": "c6.wav",
+      "source": "C6.wav"
+    },
+    {
+      "midi": 85,
+      "rootMidi": 84,
+      "file": "c6.wav",
+      "source": "C6.wav"
+    },
+    {
+      "midi": 86,
+      "rootMidi": 84,
+      "file": "c6.wav",
+      "source": "C6.wav"
+    }
+  ]
+}

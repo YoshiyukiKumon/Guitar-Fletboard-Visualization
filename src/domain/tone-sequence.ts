@@ -35,6 +35,21 @@ export function midiNoteNumber(rootPitchClass: number, semitone: number): number
   return 60 + rootPitchClass + semitone;
 }
 
+/** E（pitch class 4）以上のルートはスケール/コード再生を 1 オクターブ下げる */
+export const SCALE_CHORD_PLAYBACK_OCTAVE_DROP_FROM_PC = 4;
+
+/** スケール・コード再生用 MIDI（指板タップは `midiNoteNumber` のまま） */
+export function midiNoteNumberForScaleChordPlayback(
+  rootPitchClass: number,
+  semitone: number,
+): number {
+  const midi = midiNoteNumber(rootPitchClass, semitone);
+  if (rootPitchClass >= SCALE_CHORD_PLAYBACK_OCTAVE_DROP_FROM_PC) {
+    return midi - 12;
+  }
+  return midi;
+}
+
 /** 表示用スケール名（例: D Major） */
 export function formatScaleName(scaleKey: KeyDef, scale: ScaleDef): string {
   return `${scaleKey.id} ${scale.name}`;

@@ -1,0 +1,535 @@
+{
+  "source": "FreePats Upright Piano KW (small)",
+  "sourceUrl": "https://freepats.zenvoid.org/Piano/acoustic-grand-piano.html",
+  "license": "CC0 1.0",
+  "entries": [
+    {
+      "midi": 21,
+      "rootMidi": 24,
+      "file": "c1vh.wav",
+      "source": "C1vH.wav"
+    },
+    {
+      "midi": 22,
+      "rootMidi": 24,
+      "file": "c1vh.wav",
+      "source": "C1vH.wav"
+    },
+    {
+      "midi": 23,
+      "rootMidi": 24,
+      "file": "c1vh.wav",
+      "source": "C1vH.wav"
+    },
+    {
+      "midi": 24,
+      "rootMidi": 24,
+      "file": "c1vh.wav",
+      "source": "C1vH.wav"
+    },
+    {
+      "midi": 25,
+      "rootMidi": 24,
+      "file": "c1vh.wav",
+      "source": "C1vH.wav"
+    },
+    {
+      "midi": 26,
+      "rootMidi": 24,
+      "file": "c1vh.wav",
+      "source": "C1vH.wav"
+    },
+    {
+      "midi": 27,
+      "rootMidi": 30,
+      "file": "fs1vh.wav",
+      "source": "F#1vH.wav"
+    },
+    {
+      "midi": 28,
+      "rootMidi": 30,
+      "file": "fs1vh.wav",
+      "source": "F#1vH.wav"
+    },
+    {
+      "midi": 29,
+      "rootMidi": 30,
+      "file": "fs1vh.wav",
+      "source": "F#1vH.wav"
+    },
+    {
+      "midi": 30,
+      "rootMidi": 30,
+      "file": "fs1vh.wav",
+      "source": "F#1vH.wav"
+    },
+    {
+      "midi": 31,
+      "rootMidi": 30,
+      "file": "fs1vh.wav",
+      "source": "F#1vH.wav"
+    },
+    {
+      "midi": 32,
+      "rootMidi": 30,
+      "file": "fs1vh.wav",
+      "source": "F#1vH.wav"
+    },
+    {
+      "midi": 33,
+      "rootMidi": 35,
+      "file": "b1vh.wav",
+      "source": "B1vH.wav"
+    },
+    {
+      "midi": 34,
+      "rootMidi": 35,
+      "file": "b1vh.wav",
+      "source": "B1vH.wav"
+    },
+    {
+      "midi": 35,
+      "rootMidi": 35,
+      "file": "b1vh.wav",
+      "source": "B1vH.wav"
+    },
+    {
+      "midi": 36,
+      "rootMidi": 35,
+      "file": "b1vh.wav",
+      "source": "B1vH.wav"
+    },
+    {
+      "midi": 37,
+      "rootMidi": 39,
+      "file": "ds2vh.wav",
+      "source": "D#2vH.wav"
+    },
+    {
+      "midi": 38,
+      "rootMidi": 39,
+      "file": "ds2vh.wav",
+      "source": "D#2vH.wav"
+    },
+    {
+      "midi": 39,
+      "rootMidi": 39,
+      "file": "ds2vh.wav",
+      "source": "D#2vH.wav"
+    },
+    {
+      "midi": 40,
+      "rootMidi": 39,
+      "file": "ds2vh.wav",
+      "source": "D#2vH.wav"
+    },
+    {
+      "midi": 41,
+      "rootMidi": 42,
+      "file": "fs2vh.wav",
+      "source": "F#2vH.wav"
+    },
+    {
+      "midi": 42,
+      "rootMidi": 42,
+      "file": "fs2vh.wav",
+      "source": "F#2vH.wav"
+    },
+    {
+      "midi": 43,
+      "rootMidi": 42,
+      "file": "fs2vh.wav",
+      "source": "F#2vH.wav"
+    },
+    {
+      "midi": 44,
+      "rootMidi": 42,
+      "file": "fs2vh.wav",
+      "source": "F#2vH.wav"
+    },
+    {
+      "midi": 45,
+      "rootMidi": 47,
+      "file": "b2vh.wav",
+      "source": "B2vH.wav"
+    },
+    {
+      "midi": 46,
+      "rootMidi": 47,
+      "file": "b2vh.wav",
+      "source": "B2vH.wav"
+    },
+    {
+      "midi": 47,
+      "rootMidi": 47,
+      "file": "b2vh.wav",
+      "source": "B2vH.wav"
+    },
+    {
+      "midi": 48,
+      "rootMidi": 47,
+      "file": "b2vh.wav",
+      "source": "B2vH.wav"
+    },
+    {
+      "midi": 49,
+      "rootMidi": 51,
+      "file": "ds3vh.wav",
+      "source": "D#3vH.wav"
+    },
+    {
+      "midi": 50,
+      "rootMidi": 51,
+      "file": "ds3vh.wav",
+      "source": "D#3vH.wav"
+    },
+    {
+      "midi": 51,
+      "rootMidi": 51,
+      "file": "ds3vh.wav",
+      "source": "D#3vH.wav"
+    },
+    {
+      "midi": 52,
+      "rootMidi": 51,
+      "file": "ds3vh.wav",
+      "source": "D#3vH.wav"
+    },
+    {
+      "midi": 53,
+      "rootMidi": 54,
+      "file": "fs3vh.wav",
+      "source": "F#3vH.wav"
+    },
+    {
+      "midi": 54,
+      "rootMidi": 54,
+      "file": "fs3vh.wav",
+      "source": "F#3vH.wav"
+    },
+    {
+      "midi": 55,
+      "rootMidi": 54,
+      "file": "fs3vh.wav",
+      "source": "F#3vH.wav"
+    },
+    {
+      "midi": 56,
+      "rootMidi": 57,
+      "file": "a3vh.wav",
+      "source": "A3vH.wav"
+    },
+    {
+      "midi": 57,
+      "rootMidi": 57,
+      "file": "a3vh.wav",
+      "source": "A3vH.wav"
+    },
+    {
+      "midi": 58,
+      "rootMidi": 57,
+      "file": "a3vh.wav",
+      "source": "A3vH.wav"
+    },
+    {
+      "midi": 59,
+      "rootMidi": 60,
+      "file": "c4vh.wav",
+      "source": "C4vH.wav"
+    },
+    {
+      "midi": 60,
+      "rootMidi": 60,
+      "file": "c4vh.wav",
+      "source": "C4vH.wav"
+    },
+    {
+      "midi": 61,
+      "rootMidi": 60,
+      "file": "c4vh.wav",
+      "source": "C4vH.wav"
+    },
+    {
+      "midi": 62,
+      "rootMidi": 63,
+      "file": "ds4vh.wav",
+      "source": "D#4vH.wav"
+    },
+    {
+      "midi": 63,
+      "rootMidi": 63,
+      "file": "ds4vh.wav",
+      "source": "D#4vH.wav"
+    },
+    {
+      "midi": 64,
+      "rootMidi": 63,
+      "file": "ds4vh.wav",
+      "source": "D#4vH.wav"
+    },
+    {
+      "midi": 65,
+      "rootMidi": 66,
+      "file": "fs4vh.wav",
+      "source": "F#4vH.wav"
+    },
+    {
+      "midi": 66,
+      "rootMidi": 66,
+      "file": "fs4vh.wav",
+      "source": "F#4vH.wav"
+    },
+    {
+      "midi": 67,
+      "rootMidi": 66,
+      "file": "fs4vh.wav",
+      "source": "F#4vH.wav"
+    },
+    {
+      "midi": 68,
+      "rootMidi": 69,
+      "file": "a4vh.wav",
+      "source": "A4vH.wav"
+    },
+    {
+      "midi": 69,
+      "rootMidi": 69,
+      "file": "a4vh.wav",
+      "source": "A4vH.wav"
+    },
+    {
+      "midi": 70,
+      "rootMidi": 69,
+      "file": "a4vh.wav",
+      "source": "A4vH.wav"
+    },
+    {
+      "midi": 71,
+      "rootMidi": 72,
+      "file": "c5vh.wav",
+      "source": "C5vH.wav"
+    },
+    {
+      "midi": 72,
+      "rootMidi": 72,
+      "file": "c5vh.wav",
+      "source": "C5vH.wav"
+    },
+    {
+      "midi": 73,
+      "rootMidi": 72,
+      "file": "c5vh.wav",
+      "source": "C5vH.wav"
+    },
+    {
+      "midi": 74,
+      "rootMidi": 75,
+      "file": "ds5vh.wav",
+      "source": "D#5vH.wav"
+    },
+    {
+      "midi": 75,
+      "rootMidi": 75,
+      "file": "ds5vh.wav",
+      "source": "D#5vH.wav"
+    },
+    {
+      "midi": 76,
+      "rootMidi": 75,
+      "file": "ds5vh.wav",
+      "source": "D#5vH.wav"
+    },
+    {
+      "midi": 77,
+      "rootMidi": 78,
+      "file": "fs5vh.wav",
+      "source": "F#5vH.wav"
+    },
+    {
+      "midi": 78,
+      "rootMidi": 78,
+      "file": "fs5vh.wav",
+      "source": "F#5vH.wav"
+    },
+    {
+      "midi": 79,
+      "rootMidi": 78,
+      "file": "fs5vh.wav",
+      "source": "F#5vH.wav"
+    },
+    {
+      "midi": 80,
+      "rootMidi": 81,
+      "file": "a5vh.wav",
+      "source": "A5vH.wav"
+    },
+    {
+      "midi": 81,
+      "rootMidi": 81,
+      "file": "a5vh.wav",
+      "source": "A5vH.wav"
+    },
+    {
+      "midi": 82,
+      "rootMidi": 81,
+      "file": "a5vh.wav",
+      "source": "A5vH.wav"
+    },
+    {
+      "midi": 83,
+      "rootMidi": 84,
+      "file": "c6vh.wav",
+      "source": "C6vH.wav"
+    },
+    {
+      "midi": 84,
+      "rootMidi": 84,
+      "file": "c6vh.wav",
+      "source": "C6vH.wav"
+    },
+    {
+      "midi": 85,
+      "rootMidi": 84,
+      "file": "c6vh.wav",
+      "source": "C6vH.wav"
+    },
+    {
+      "midi": 86,
+      "rootMidi": 87,
+      "file": "ds6vh.wav",
+      "source": "D#6vH.wav"
+    },
+    {
+      "midi": 87,
+      "rootMidi": 87,
+      "file": "ds6vh.wav",
+      "source": "D#6vH.wav"
+    },
+    {
+      "midi": 88,
+      "rootMidi": 87,
+      "file": "ds6vh.wav",
+      "source": "D#6vH.wav"
+    },
+    {
+      "midi": 89,
+      "rootMidi": 90,
+      "file": "fs6vh.wav",
+      "source": "F#6vH.wav"
+    },
+    {
+      "midi": 90,
+      "rootMidi": 90,
+      "file": "fs6vh.wav",
+      "source": "F#6vH.wav"
+    },
+    {
+      "midi": 91,
+      "rootMidi": 90,
+      "file": "fs6vh.wav",
+      "source": "F#6vH.wav"
+    },
+    {
+      "midi": 92,
+      "rootMidi": 93,
+      "file": "a6vh.wav",
+      "source": "A6vH.wav"
+    },
+    {
+      "midi": 93,
+      "rootMidi": 93,
+      "file": "a6vh.wav",
+      "source": "A6vH.wav"
+    },
+    {
+      "midi": 94,
+      "rootMidi": 93,
+      "file": "a6vh.wav",
+      "source": "A6vH.wav"
+    },
+    {
+      "midi": 95,
+      "rootMidi": 96,
+      "file": "c7vh.wav",
+      "source": "C7vH.wav"
+    },
+    {
+      "midi": 96,
+      "rootMidi": 96,
+      "file": "c7vh.wav",
+      "source": "C7vH.wav"
+    },
+    {
+      "midi": 97,
+      "rootMidi": 96,
+      "file": "c7vh.wav",
+      "source": "C7vH.wav"
+    },
+    {
+      "midi": 98,
+      "rootMidi": 99,
+      "file": "ds7vh.wav",
+      "source": "D#7vH.wav"
+    },
+    {
+      "midi": 99,
+      "rootMidi": 99,
+      "file": "ds7vh.wav",
+      "source": "D#7vH.wav"
+    },
+    {
+      "midi": 100,
+      "rootMidi": 99,
+      "file": "ds7vh.wav",
+      "source": "D#7vH.wav"
+    },
+    {
+      "midi": 101,
+      "rootMidi": 102,
+      "file": "fs7vh.wav",
+      "source": "F#7vH.wav"
+    },
+    {
+      "midi": 102,
+      "rootMidi": 102,
+      "file": "fs7vh.wav",
+      "source": "F#7vH.wav"
+    },
+    {
+      "midi": 103,
+      "rootMidi": 102,
+      "file": "fs7vh.wav",
+      "source": "F#7vH.wav"
+    },
+    {
+      "midi": 104,
+      "rootMidi": 105,
+      "file": "a7vh.wav",
+      "source": "A7vH.wav"
+    },
+    {
+      "midi": 105,
+      "rootMidi": 105,
+      "file": "a7vh.wav",
+      "source": "A7vH.wav"
+    },
+    {
+      "midi": 106,
+      "rootMidi": 107,
+      "file": "b7vh.wav",
+      "source": "B7vH.wav"
+    },
+    {
+      "midi": 107,
+      "rootMidi": 107,
+      "file": "b7vh.wav",
+      "source": "B7vH.wav"
+    },
+    {
+      "midi": 108,
+      "rootMidi": 107,
+      "file": "b7vh.wav",
+      "source": "B7vH.wav"
+    }
+  ]
+}

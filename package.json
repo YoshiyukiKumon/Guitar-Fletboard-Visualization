@@ -6,18 +6,22 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build && npm run build:standalone",
-    "build:standalone": "mkdir -p standalone && cp dist/index.html standalone/guitar-practice.html",
+    "build:standalone": "mkdir -p standalone && cp dist/index.html standalone/guitar-practice.html && cp -r dist/samples standalone/",
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
     "verify:ui": "node scripts/verify-ui.mjs",
-    "verify:standalone": "npm run build && node scripts/verify-ui.mjs standalone"
+    "verify:standalone": "npm run build && node scripts/verify-ui.mjs standalone",
+    "prepare:samples": "node scripts/prepare-steel-guitar-samples.mjs",
+    "prepare:nylon-samples": "node scripts/prepare-iowa-nylon-samples.mjs",
+    "prepare:freepats-instruments": "node scripts/prepare-freepats-instruments.mjs"
   },
   "devDependencies": {
+    "ffmpeg-static": "^5.3.0",
     "playwright": "^1.52.0",
-    "vite-plugin-singlefile": "^2.2.0",
     "typescript": "~5.8.3",
     "vite": "^6.3.5",
+    "vite-plugin-singlefile": "^2.2.0",
     "vitest": "^3.2.4"
   }
 }

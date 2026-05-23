@@ -26,6 +26,7 @@ let libraryState: LibraryViewState = {
 };
 
 tonePlayer.setVolume(settings.volume);
+tonePlayer.setInstrument(settings.instrumentId);
 
 function applySanitizedMusicIds(): void {
   const next = sanitizeMusicSelectionIds(settings);
@@ -38,6 +39,9 @@ function refresh(partial?: Partial<AppSettings>): void {
   }
   if (partial?.volume !== undefined) {
     tonePlayer.setVolume(settings.volume);
+  }
+  if (partial?.instrumentId !== undefined) {
+    tonePlayer.setInstrument(settings.instrumentId);
   }
   renderApp(appRoot, settings, {
     libraryState,
@@ -111,6 +115,10 @@ function refresh(partial?: Partial<AppSettings>): void {
       settings = { ...settings, volume };
       tonePlayer.setVolume(volume);
       saveSettings(settings);
+    },
+    onInstrumentChange: (instrumentId) => {
+      saveSettings({ ...settings, instrumentId });
+      refresh({ instrumentId });
     },
   });
 }

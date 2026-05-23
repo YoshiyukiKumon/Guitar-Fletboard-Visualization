@@ -7,6 +7,7 @@ import {
   formatScaleChordSummary,
   formatScaleName,
   midiNoteNumber,
+  midiNoteNumberForScaleChordPlayback,
   noteNamesFromTones,
   orderedSemitonesFromTones,
 } from '../src/domain/tone-sequence';
@@ -62,5 +63,17 @@ describe('midiNoteNumber', () => {
 
   it('maps A root R to MIDI 69', () => {
     expect(midiNoteNumber(9, 0)).toBe(69);
+  });
+});
+
+describe('midiNoteNumberForScaleChordPlayback', () => {
+  it('keeps C through Eb roots in octave 4', () => {
+    expect(midiNoteNumberForScaleChordPlayback(0, 0)).toBe(60);
+    expect(midiNoteNumberForScaleChordPlayback(3, 0)).toBe(63);
+  });
+
+  it('drops E and higher roots by one octave', () => {
+    expect(midiNoteNumberForScaleChordPlayback(4, 0)).toBe(52);
+    expect(midiNoteNumberForScaleChordPlayback(9, 0)).toBe(57);
   });
 });

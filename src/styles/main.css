@@ -1126,3 +1126,109 @@ body {
   color: #b8aea3;
   font-size: 0.85rem;
 }
+
+.settings-view {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding: 0.25rem 0 1rem;
+}
+
+.settings-view__intro {
+  margin: 0;
+  color: #b8aea3;
+  font-size: 0.9rem;
+}
+
+.settings-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem;
+  border: 1px solid #4a3d32;
+  border-radius: 8px;
+  background: #2a221c;
+}
+
+.settings-section__title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #f0e6dc;
+}
+
+.settings-section__hint {
+  margin: 0 0 0.5rem;
+  color: #b8aea3;
+  font-size: 0.85rem;
+}
+
+.settings-section__legend {
+  font-size: 0.85rem;
+  color: #b8aea3;
+}
+
+.settings-instrument-list {
+  margin: 0;
+  padding: 0;
+  border: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.settings-instrument-list__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.35rem 0.25rem;
+  border-radius: 6px;
+}
+
+.settings-instrument-list__row:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.settings-instrument-list__label {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  flex: 1;
+  cursor: pointer;
+  color: #f0e6dc;
+  font-size: 0.92rem;
+}
+
+.settings-instrument-list__radio {
+  accent-color: #c97b5a;
+}
+
+.settings-instrument-list__text {
+  line-height: 1.35;
+}
+
+.settings-instrument-list__preview {
+  flex-shrink: 0;
+  min-width: 2rem;
+  padding: 0.25rem 0.5rem;
+  border: 1px solid #5a4a3d;
+  border-radius: 6px;
+  background: #3a3028;
+  color: #f0e6dc;
+  cursor: pointer;
+}
+
+.settings-instrument-list__preview:hover {
+  background: #4a3d32;
+}
+
+.settings-instrument-list__preview:focus-visible {
+  outline: 2px solid #c97b5a;
+  outline-offset: 2px;
+}
+
+.app-header__mode .segment-switcher__btn {
+  padding-inline: 0.65rem;
+  font-size: 0.82rem;
+}

@@ -30,11 +30,17 @@ import { createVolumeControl } from './volume-control';
 import { renderFretboard } from './fretboard-view';
 import { createDiatonicChordsPanel } from './diatonic-chords-panel';
 import type { DiatonicChordPlayPayload } from '../domain/diatonic-chords';
+import type { InstrumentId } from '../domain/settings/instrument-catalog';
+import {
+  createSettingsView,
+  type SettingsViewCallbacks,
+} from './settings-view';
 
-const APP_MODES = ['practice', 'library'] as const;
-const APP_MODE_LABELS: Record<(typeof APP_MODES)[number], string> = {
+const APP_MODES: AppMode[] = ['practice', 'library', 'settings'];
+const APP_MODE_LABELS: Record<AppMode, string> = {
   practice: '練習',
   library: 'ライブラリ',
+  settings: '設定',
 };
 
 export interface AppRenderOptions {
@@ -48,6 +54,7 @@ export interface AppRenderOptions {
   onDiatonicChordApply: (chordKeyId: string, chordId: string) => void;
   onDiatonicChordPlay: (payload: DiatonicChordPlayPayload) => void;
   onVolumeChange: (volume: number) => void;
+  onInstrumentChange: (instrumentId: InstrumentId) => void;
   libraryState: LibraryViewState;
   onLibraryStateChange: (state: LibraryViewState) => void;
   onLibraryChanged: () => void;
@@ -92,6 +99,15 @@ export function renderApp(
       onLibraryChanged: options.onLibraryChanged,
     };
     root.appendChild(createLibraryView(options.libraryState, libraryCallbacks));
+    return;
+  }
+
+  if (settings.appMode === 'settings') {
+    const settingsCallbacks: SettingsViewCallbacks = {
+      onInstrumentChange: options.onInstrumentChange,
+      onVolumeChange: options.onVolumeChange,
+    };
+    root.appendChild(createSettingsView(settings, settingsCallbacks));
     return;
   }
 

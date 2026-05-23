@@ -50,6 +50,14 @@ describe('orderedSemitonesForChordPlayback', () => {
     ]);
   });
 
+  it('matches power with root and fifth only', () => {
+    const chord = CHORDS.find((c) => c.id === 'power')!;
+    expect(chord.name).toBe('power');
+    expect(orderedSemitonesForChordPlayback(chord.tones, chord.name)).toEqual([
+      0, 7,
+    ]);
+  });
+
   it('matches 6 in-octave playback with fifth', () => {
     const chord = CHORDS.find((c) => c.id === '6')!;
     expect(orderedSemitonesForChordPlayback(chord.tones, chord.name)).toEqual([

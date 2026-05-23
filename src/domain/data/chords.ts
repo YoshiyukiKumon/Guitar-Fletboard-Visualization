@@ -26,6 +26,7 @@ export const CHORDS: readonly ChordDef[] = [
   { id: 'dim7', name: 'dim7', tones: ['R', 'm3 / #9', 'b5 / #11', '6 / 13'] },
   { id: 'sus4', name: 'sus4', tones: ['R', '4 / 11', '5'] },
   { id: 'sus2', name: 'sus2', tones: ['R', '2 / 9', '5'] },
+  { id: 'power', name: 'power', tones: ['R', '5'] },
   { id: 'add9', name: 'add9', tones: ['R', '3', '5', '2 / 9'] },
   { id: '7-9', name: '7(9)', tones: ['R', '3', '5', 'b7', '2 / 9'] },
   { id: '7-b9', name: '7(b9)', tones: ['R', '3', '5', 'b7', 'b9'] },

@@ -491,6 +491,18 @@ async function runChecks(page) {
   await page.locator('.app-header__mode .segment-switcher__btn', { hasText: 'ライブラリ' }).click();
   const libraryPlay = page.locator('.library-view__play');
   assert((await libraryPlay.count()) >= 1, 'library form should show preview play buttons');
+
+  await page.locator('.app-header__mode .segment-switcher__btn', { hasText: '設定' }).click();
+  assert((await page.locator('.settings-view').count()) === 1, 'settings view missing');
+  assert(
+    (await page.locator('.settings-instrument-list__radio').count()) === 7,
+    'settings should list 7 instruments',
+  );
+  assert(
+    (await page.locator('.settings-instrument-list__radio:checked').count()) === 1,
+    'one instrument should be selected by default',
+  );
+
   await page.locator('.app-header__mode .segment-switcher__btn', { hasText: '練習' }).click();
 
   await scaleSelect.selectOption('dorian');

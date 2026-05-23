@@ -1,0 +1,313 @@
+{
+  "source": "FreePats FSBS Electric Guitar Distorted #2",
+  "sourceUrl": "https://freepats.zenvoid.org/ElectricGuitar/distorted-electric-guitar.html",
+  "license": "CC0 1.0",
+  "entries": [
+    {
+      "midi": 35,
+      "rootMidi": 36,
+      "file": "c2_s1_04.wav",
+      "source": "C2_s1_04.flac"
+    },
+    {
+      "midi": 36,
+      "rootMidi": 36,
+      "file": "c2_s1_04.wav",
+      "source": "C2_s1_04.flac"
+    },
+    {
+      "midi": 37,
+      "rootMidi": 36,
+      "file": "c2_s1_04.wav",
+      "source": "C2_s1_04.flac"
+    },
+    {
+      "midi": 38,
+      "rootMidi": 36,
+      "file": "c2_s1_04.wav",
+      "source": "C2_s1_04.flac"
+    },
+    {
+      "midi": 39,
+      "rootMidi": 40,
+      "file": "e2_s1_04.wav",
+      "source": "E2_s1_04.flac"
+    },
+    {
+      "midi": 40,
+      "rootMidi": 40,
+      "file": "e2_s1_04.wav",
+      "source": "E2_s1_04.flac"
+    },
+    {
+      "midi": 41,
+      "rootMidi": 41,
+      "file": "f2_s1_04.wav",
+      "source": "F2_s1_04.flac"
+    },
+    {
+      "midi": 42,
+      "rootMidi": 41,
+      "file": "f2_s1_04.wav",
+      "source": "F2_s1_04.flac"
+    },
+    {
+      "midi": 43,
+      "rootMidi": 45,
+      "file": "a2_s2_04.wav",
+      "source": "A2_s2_04.flac"
+    },
+    {
+      "midi": 44,
+      "rootMidi": 45,
+      "file": "a2_s2_04.wav",
+      "source": "A2_s2_04.flac"
+    },
+    {
+      "midi": 45,
+      "rootMidi": 45,
+      "file": "a2_s2_04.wav",
+      "source": "A2_s2_04.flac"
+    },
+    {
+      "midi": 46,
+      "rootMidi": 45,
+      "file": "a2_s2_04.wav",
+      "source": "A2_s2_04.flac"
+    },
+    {
+      "midi": 47,
+      "rootMidi": 48,
+      "file": "c3_s2_04.wav",
+      "source": "C3_s2_04.flac"
+    },
+    {
+      "midi": 48,
+      "rootMidi": 48,
+      "file": "c3_s2_04.wav",
+      "source": "C3_s2_04.flac"
+    },
+    {
+      "midi": 49,
+      "rootMidi": 48,
+      "file": "c3_s2_04.wav",
+      "source": "C3_s2_04.flac"
+    },
+    {
+      "midi": 50,
+      "rootMidi": 50,
+      "file": "d3_s3_04.wav",
+      "source": "D3_s3_04.flac"
+    },
+    {
+      "midi": 51,
+      "rootMidi": 50,
+      "file": "d3_s3_04.wav",
+      "source": "D3_s3_04.flac"
+    },
+    {
+      "midi": 52,
+      "rootMidi": 52,
+      "file": "e3_s3_04.wav",
+      "source": "E3_s3_04.flac"
+    },
+    {
+      "midi": 53,
+      "rootMidi": 52,
+      "file": "e3_s3_04.wav",
+      "source": "E3_s3_04.flac"
+    },
+    {
+      "midi": 54,
+      "rootMidi": 55,
+      "file": "g3_s4_04.wav",
+      "source": "G3_s4_04.flac"
+    },
+    {
+      "midi": 55,
+      "rootMidi": 55,
+      "file": "g3_s4_04.wav",
+      "source": "G3_s4_04.flac"
+    },
+    {
+      "midi": 56,
+      "rootMidi": 55,
+      "file": "g3_s4_04.wav",
+      "source": "G3_s4_04.flac"
+    },
+    {
+      "midi": 57,
+      "rootMidi": 59,
+      "file": "b3_s5_04.wav",
+      "source": "B3_s5_04.flac"
+    },
+    {
+      "midi": 58,
+      "rootMidi": 59,
+      "file": "b3_s5_04.wav",
+      "source": "B3_s5_04.flac"
+    },
+    {
+      "midi": 59,
+      "rootMidi": 59,
+      "file": "b3_s5_04.wav",
+      "source": "B3_s5_04.flac"
+    },
+    {
+      "midi": 60,
+      "rootMidi": 61,
+      "file": "cs4_s5_04.wav",
+      "source": "C#4_s5_04.flac"
+    },
+    {
+      "midi": 61,
+      "rootMidi": 61,
+      "file": "cs4_s5_04.wav",
+      "source": "C#4_s5_04.flac"
+    },
+    {
+      "midi": 62,
+      "rootMidi": 61,
+      "file": "cs4_s5_04.wav",
+      "source": "C#4_s5_04.flac"
+    },
+    {
+      "midi": 63,
+      "rootMidi": 64,
+      "file": "e4_s6_04.wav",
+      "source": "E4_s6_04.flac"
+    },
+    {
+      "midi": 64,
+      "rootMidi": 64,
+      "file": "e4_s6_04.wav",
+      "source": "E4_s6_04.flac"
+    },
+    {
+      "midi": 65,
+      "rootMidi": 64,
+      "file": "e4_s6_04.wav",
+      "source": "E4_s6_04.flac"
+    },
+    {
+      "midi": 66,
+      "rootMidi": 67,
+      "file": "g4_s6_04.wav",
+      "source": "G4_s6_04.flac"
+    },
+    {
+      "midi": 67,
+      "rootMidi": 67,
+      "file": "g4_s6_04.wav",
+      "source": "G4_s6_04.flac"
+    },
+    {
+      "midi": 68,
+      "rootMidi": 67,
+      "file": "g4_s6_04.wav",
+      "source": "G4_s6_04.flac"
+    },
+    {
+      "midi": 69,
+      "rootMidi": 67,
+      "file": "g4_s6_04.wav",
+      "source": "G4_s6_04.flac"
+    },
+    {
+      "midi": 70,
+      "rootMidi": 71,
+      "file": "b4_s6_04.wav",
+      "source": "B4_s6_04.flac"
+    },
+    {
+      "midi": 71,
+      "rootMidi": 71,
+      "file": "b4_s6_04.wav",
+      "source": "B4_s6_04.flac"
+    },
+    {
+      "midi": 73,
+      "rootMidi": 74,
+      "file": "d5_s6_01.wav",
+      "source": "D5_s6_01.flac"
+    },
+    {
+      "midi": 74,
+      "rootMidi": 74,
+      "file": "d5_s6_01.wav",
+      "source": "D5_s6_01.flac"
+    },
+    {
+      "midi": 75,
+      "rootMidi": 74,
+      "file": "d5_s6_01.wav",
+      "source": "D5_s6_01.flac"
+    },
+    {
+      "midi": 76,
+      "rootMidi": 77,
+      "file": "f5_s6_04.wav",
+      "source": "F5_s6_04.flac"
+    },
+    {
+      "midi": 77,
+      "rootMidi": 77,
+      "file": "f5_s6_04.wav",
+      "source": "F5_s6_04.flac"
+    },
+    {
+      "midi": 78,
+      "rootMidi": 77,
+      "file": "f5_s6_04.wav",
+      "source": "F5_s6_04.flac"
+    },
+    {
+      "midi": 79,
+      "rootMidi": 80,
+      "file": "gs5_s6_04.wav",
+      "source": "G#5_s6_04.flac"
+    },
+    {
+      "midi": 80,
+      "rootMidi": 80,
+      "file": "gs5_s6_04.wav",
+      "source": "G#5_s6_04.flac"
+    },
+    {
+      "midi": 81,
+      "rootMidi": 80,
+      "file": "gs5_s6_04.wav",
+      "source": "G#5_s6_04.flac"
+    },
+    {
+      "midi": 82,
+      "rootMidi": 82,
+      "file": "as5_s6_04.wav",
+      "source": "A#5_s6_04.flac"
+    },
+    {
+      "midi": 83,
+      "rootMidi": 82,
+      "file": "as5_s6_04.wav",
+      "source": "A#5_s6_04.flac"
+    },
+    {
+      "midi": 84,
+      "rootMidi": 85,
+      "file": "cs6_s6_04.wav",
+      "source": "C#6_s6_04.flac"
+    },
+    {
+      "midi": 85,
+      "rootMidi": 85,
+      "file": "cs6_s6_04.wav",
+      "source": "C#6_s6_04.flac"
+    },
+    {
+      "midi": 86,
+      "rootMidi": 85,
+      "file": "cs6_s6_04.wav",
+      "source": "C#6_s6_04.flac"
+    }
+  ]
+}

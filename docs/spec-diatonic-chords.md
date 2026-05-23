@@ -13,7 +13,7 @@
 - 各コードを **相対コード名**（ローマ数字表記）と **実コード名**（ルート音付き）の **2 段** で表示する
 - 各コード列に **再生** と **選択** の 2 ボタンを設ける。列全体のタップは行わない
 - **選択** → **コードルート / コード種別の選択を更新**し、指板・構成音パネルと連動させる（再生はしない）
-- **再生** → **`chordId` あり**なら `tonePlayer.playChord(chordKey, chord)`、**なし**なら `tonePlayer.playChordSemitonesFromRoot(chordKey, playbackSemitones)` で **同時再生**（構成音パネルの「▶ 同時」と同じ音量設定）
+- **再生** → **`chordId` あり**なら `tonePlayer.playChord(chordKey, chord)`、**なし**なら `tonePlayer.playChordSemitonesFromRoot(chordKey, playbackSemitones)` で **同時再生**（構成音パネルの「▶ 同時」と同じ音量設定）。**ギター系**楽器ではルートから約 32ms ずつずらしたストローク風
 - 理論は Web 上の一般的な説明と整合させつつ、本アプリの **半音ラベル体系**（`interval-labels.ts`）で機械的に再現する
 
 ---

@@ -1,0 +1,319 @@
+{
+  "source": "FreePats FSBS Electric Guitar Clean #1 (small)",
+  "sourceUrl": "http://freepats.zenvoid.org/ElectricGuitar/clean-electric-guitar.html",
+  "license": "CC0 1.0",
+  "entries": [
+    {
+      "midi": 35,
+      "rootMidi": 36,
+      "file": "c2_s1_01.wav",
+      "source": "C2_s1_01.wav"
+    },
+    {
+      "midi": 36,
+      "rootMidi": 36,
+      "file": "c2_s1_01.wav",
+      "source": "C2_s1_01.wav"
+    },
+    {
+      "midi": 37,
+      "rootMidi": 36,
+      "file": "c2_s1_01.wav",
+      "source": "C2_s1_01.wav"
+    },
+    {
+      "midi": 38,
+      "rootMidi": 36,
+      "file": "c2_s1_01.wav",
+      "source": "C2_s1_01.wav"
+    },
+    {
+      "midi": 39,
+      "rootMidi": 41,
+      "file": "f2_s1_01.wav",
+      "source": "F2_s1_01.wav"
+    },
+    {
+      "midi": 40,
+      "rootMidi": 41,
+      "file": "f2_s1_01.wav",
+      "source": "F2_s1_01.wav"
+    },
+    {
+      "midi": 41,
+      "rootMidi": 41,
+      "file": "f2_s1_01.wav",
+      "source": "F2_s1_01.wav"
+    },
+    {
+      "midi": 42,
+      "rootMidi": 41,
+      "file": "f2_s1_01.wav",
+      "source": "F2_s1_01.wav"
+    },
+    {
+      "midi": 43,
+      "rootMidi": 45,
+      "file": "a2_s2_01.wav",
+      "source": "A2_s2_01.wav"
+    },
+    {
+      "midi": 44,
+      "rootMidi": 45,
+      "file": "a2_s2_01.wav",
+      "source": "A2_s2_01.wav"
+    },
+    {
+      "midi": 45,
+      "rootMidi": 45,
+      "file": "a2_s2_01.wav",
+      "source": "A2_s2_01.wav"
+    },
+    {
+      "midi": 46,
+      "rootMidi": 45,
+      "file": "a2_s2_01.wav",
+      "source": "A2_s2_01.wav"
+    },
+    {
+      "midi": 47,
+      "rootMidi": 48,
+      "file": "c3_s2_02.wav",
+      "source": "C3_s2_02.wav"
+    },
+    {
+      "midi": 48,
+      "rootMidi": 48,
+      "file": "c3_s2_02.wav",
+      "source": "C3_s2_02.wav"
+    },
+    {
+      "midi": 49,
+      "rootMidi": 48,
+      "file": "c3_s2_02.wav",
+      "source": "C3_s2_02.wav"
+    },
+    {
+      "midi": 50,
+      "rootMidi": 52,
+      "file": "e3_s3_01.wav",
+      "source": "E3_s3_01.wav"
+    },
+    {
+      "midi": 51,
+      "rootMidi": 52,
+      "file": "e3_s3_01.wav",
+      "source": "E3_s3_01.wav"
+    },
+    {
+      "midi": 52,
+      "rootMidi": 52,
+      "file": "e3_s3_01.wav",
+      "source": "E3_s3_01.wav"
+    },
+    {
+      "midi": 53,
+      "rootMidi": 52,
+      "file": "e3_s3_01.wav",
+      "source": "E3_s3_01.wav"
+    },
+    {
+      "midi": 54,
+      "rootMidi": 55,
+      "file": "g3_s4_01.wav",
+      "source": "G3_s4_01.wav"
+    },
+    {
+      "midi": 55,
+      "rootMidi": 55,
+      "file": "g3_s4_01.wav",
+      "source": "G3_s4_01.wav"
+    },
+    {
+      "midi": 56,
+      "rootMidi": 55,
+      "file": "g3_s4_01.wav",
+      "source": "G3_s4_01.wav"
+    },
+    {
+      "midi": 57,
+      "rootMidi": 59,
+      "file": "b3_s5_01.wav",
+      "source": "B3_s5_01.wav"
+    },
+    {
+      "midi": 58,
+      "rootMidi": 59,
+      "file": "b3_s5_01.wav",
+      "source": "B3_s5_01.wav"
+    },
+    {
+      "midi": 59,
+      "rootMidi": 59,
+      "file": "b3_s5_01.wav",
+      "source": "B3_s5_01.wav"
+    },
+    {
+      "midi": 60,
+      "rootMidi": 59,
+      "file": "b3_s5_01.wav",
+      "source": "B3_s5_01.wav"
+    },
+    {
+      "midi": 61,
+      "rootMidi": 59,
+      "file": "b3_s5_01.wav",
+      "source": "B3_s5_01.wav"
+    },
+    {
+      "midi": 62,
+      "rootMidi": 64,
+      "file": "e4_s6_01.wav",
+      "source": "E4_s6_01.wav"
+    },
+    {
+      "midi": 63,
+      "rootMidi": 64,
+      "file": "e4_s6_01.wav",
+      "source": "E4_s6_01.wav"
+    },
+    {
+      "midi": 64,
+      "rootMidi": 64,
+      "file": "e4_s6_01.wav",
+      "source": "E4_s6_01.wav"
+    },
+    {
+      "midi": 65,
+      "rootMidi": 64,
+      "file": "e4_s6_01.wav",
+      "source": "E4_s6_01.wav"
+    },
+    {
+      "midi": 66,
+      "rootMidi": 67,
+      "file": "g4_s6_01.wav",
+      "source": "G4_s6_01.wav"
+    },
+    {
+      "midi": 67,
+      "rootMidi": 67,
+      "file": "g4_s6_01.wav",
+      "source": "G4_s6_01.wav"
+    },
+    {
+      "midi": 68,
+      "rootMidi": 67,
+      "file": "g4_s6_01.wav",
+      "source": "G4_s6_01.wav"
+    },
+    {
+      "midi": 69,
+      "rootMidi": 67,
+      "file": "g4_s6_01.wav",
+      "source": "G4_s6_01.wav"
+    },
+    {
+      "midi": 70,
+      "rootMidi": 71,
+      "file": "b4_s6_01.wav",
+      "source": "B4_s6_01.wav"
+    },
+    {
+      "midi": 71,
+      "rootMidi": 71,
+      "file": "b4_s6_01.wav",
+      "source": "B4_s6_01.wav"
+    },
+    {
+      "midi": 72,
+      "rootMidi": 71,
+      "file": "b4_s6_01.wav",
+      "source": "B4_s6_01.wav"
+    },
+    {
+      "midi": 73,
+      "rootMidi": 74,
+      "file": "d5_s6_01.wav",
+      "source": "D5_s6_01.wav"
+    },
+    {
+      "midi": 74,
+      "rootMidi": 74,
+      "file": "d5_s6_01.wav",
+      "source": "D5_s6_01.wav"
+    },
+    {
+      "midi": 75,
+      "rootMidi": 74,
+      "file": "d5_s6_01.wav",
+      "source": "D5_s6_01.wav"
+    },
+    {
+      "midi": 76,
+      "rootMidi": 74,
+      "file": "d5_s6_01.wav",
+      "source": "D5_s6_01.wav"
+    },
+    {
+      "midi": 77,
+      "rootMidi": 80,
+      "file": "gs5_s6_03.wav",
+      "source": "G#5_s6_03.wav"
+    },
+    {
+      "midi": 78,
+      "rootMidi": 80,
+      "file": "gs5_s6_03.wav",
+      "source": "G#5_s6_03.wav"
+    },
+    {
+      "midi": 79,
+      "rootMidi": 80,
+      "file": "gs5_s6_03.wav",
+      "source": "G#5_s6_03.wav"
+    },
+    {
+      "midi": 80,
+      "rootMidi": 80,
+      "file": "gs5_s6_03.wav",
+      "source": "G#5_s6_03.wav"
+    },
+    {
+      "midi": 81,
+      "rootMidi": 80,
+      "file": "gs5_s6_03.wav",
+      "source": "G#5_s6_03.wav"
+    },
+    {
+      "midi": 82,
+      "rootMidi": 80,
+      "file": "gs5_s6_03.wav",
+      "source": "G#5_s6_03.wav"
+    },
+    {
+      "midi": 83,
+      "rootMidi": 85,
+      "file": "cs6_s6_01.wav",
+      "source": "C#6_s6_01.wav"
+    },
+    {
+      "midi": 84,
+      "rootMidi": 85,
+      "file": "cs6_s6_01.wav",
+      "source": "C#6_s6_01.wav"
+    },
+    {
+      "midi": 85,
+      "rootMidi": 85,
+      "file": "cs6_s6_01.wav",
+      "source": "C#6_s6_01.wav"
+    },
+    {
+      "midi": 86,
+      "rootMidi": 85,
+      "file": "cs6_s6_01.wav",
+      "source": "C#6_s6_01.wav"
+    }
+  ]
+}

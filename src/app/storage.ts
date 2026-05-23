@@ -10,12 +10,19 @@ import {
   isLabelDisplayMode,
 } from '../domain/label-display-mode';
 
+import {
+  DEFAULT_INSTRUMENT_ID,
+  normalizeInstrumentId,
+  type InstrumentId,
+} from '../domain/settings/instrument-catalog';
+
 const STORAGE_KEY = 'guitar-practice-settings';
 
-export type AppMode = 'practice' | 'library';
+export type AppMode = 'practice' | 'library' | 'settings';
 
 export interface AppSettings {
   appMode: AppMode;
+  instrumentId: InstrumentId;
   viewMode: FretboardViewMode;
   labelMode: LabelDisplayMode;
   scaleKeyId: string;
@@ -28,6 +35,7 @@ export interface AppSettings {
 
 const DEFAULT_SETTINGS: AppSettings = {
   appMode: 'practice',
+  instrumentId: DEFAULT_INSTRUMENT_ID,
   viewMode: 'scale',
   labelMode: 'dot',
   scaleKeyId: MVP_KEY.id,
@@ -38,7 +46,7 @@ const DEFAULT_SETTINGS: AppSettings = {
 };
 
 function isAppMode(value: unknown): value is AppMode {
-  return value === 'practice' || value === 'library';
+  return value === 'practice' || value === 'library' || value === 'settings';
 }
 
 export function sanitizeMusicSelectionIds(
@@ -90,6 +98,7 @@ export function loadSettings(): AppSettings {
         parsed.appMode && isAppMode(parsed.appMode)
           ? parsed.appMode
           : DEFAULT_SETTINGS.appMode,
+      instrumentId: normalizeInstrumentId(parsed.instrumentId),
       viewMode:
         parsed.viewMode && isFretboardViewMode(parsed.viewMode)
           ? parsed.viewMode
