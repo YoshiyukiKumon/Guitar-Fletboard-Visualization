@@ -504,6 +504,20 @@ async function runChecks(page) {
   const libraryPlay = page.locator('.library-view__play');
   assert((await libraryPlay.count()) >= 1, 'library form should show preview play buttons');
 
+  const libraryList = page.locator('.library-view__list');
+  await libraryList.evaluate((el) => {
+    el.scrollTop = 120;
+  });
+  const libraryScrollBefore = await libraryList.evaluate((el) => el.scrollTop);
+  assert(libraryScrollBefore >= 100, 'library list should scroll for scroll test');
+  await page.locator('.library-view__list-btn').nth(4).click();
+  await page.waitForTimeout(50);
+  const libraryScrollAfter = await libraryList.evaluate((el) => el.scrollTop);
+  assert(
+    Math.abs(libraryScrollAfter - libraryScrollBefore) < 2,
+    `library list scroll should persist on selection (${libraryScrollBefore} -> ${libraryScrollAfter})`,
+  );
+
   await page.locator('.app-header__mode .segment-switcher__btn', { hasText: '設定' }).click();
   assert((await page.locator('.settings-view').count()) === 1, 'settings view missing');
   assert(

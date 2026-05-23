@@ -958,6 +958,7 @@ body {
   padding: 0;
   max-height: 16rem;
   overflow-y: auto;
+  overflow-anchor: none;
   border: 1px solid #4a3d32;
   border-radius: 8px;
 }

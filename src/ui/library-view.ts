@@ -28,6 +28,17 @@ import { createSegmentSwitcher } from './segment-switcher';
 
 export type LibraryTab = 'scale' | 'chord';
 
+const libraryListScrollTop: Record<LibraryTab, number> = {
+  scale: 0,
+  chord: 0,
+};
+
+/** CSV 取込・リセット後はリスト先頭に戻す */
+export function resetLibraryListScroll(): void {
+  libraryListScrollTop.scale = 0;
+  libraryListScrollTop.chord = 0;
+}
+
 export interface LibraryViewState {
   tab: LibraryTab;
   selectedScaleId: string | null;
@@ -45,6 +56,14 @@ export function createLibraryView(
   state: LibraryViewState,
   callbacks: LibraryViewCallbacks,
 ): HTMLElement {
+  const wrappedCallbacks: LibraryViewCallbacks = {
+    ...callbacks,
+    onLibraryChanged: () => {
+      resetLibraryListScroll();
+      callbacks.onLibraryChanged();
+    },
+  };
+
   const root = document.createElement('section');
   root.className = 'library-view';
   root.setAttribute('aria-label', 'スケール・コードライブラリ');
@@ -56,7 +75,7 @@ export function createLibraryView(
     labels: { scale: 'スケール', chord: 'コード' },
     active: state.tab,
     onChange: (tab) => {
-      callbacks.onStateChange({ ...state, tab });
+      wrappedCallbacks.onStateChange({ ...state, tab });
     },
   });
   root.appendChild(tabBar);
@@ -70,12 +89,12 @@ export function createLibraryView(
   root.appendChild(toolbar);
 
   if (state.tab === 'scale') {
-    renderScalePanel(body, state, callbacks);
+    renderScalePanel(body, state, wrappedCallbacks);
   } else {
-    renderChordPanel(body, state, callbacks);
+    renderChordPanel(body, state, wrappedCallbacks);
   }
 
-  renderToolbar(toolbar, callbacks);
+  renderToolbar(toolbar, wrappedCallbacks);
 
   return root;
 }
@@ -96,7 +115,8 @@ function renderScalePanel(
       : items.find((i) => i.def.id === selectedId) ?? items[0];
 
   body.appendChild(
-    createListEditor({
+    createListEditor(
+      {
       items: items.map((item) => ({
         id: item.def.id,
         label: displayScaleName(item.def, item.source),
@@ -124,7 +144,9 @@ function renderScalePanel(
         const readonly = !isNew && selected!.source === 'builtin';
         return createScaleForm(def, readonly, isNew, callbacks, state);
       },
-    }),
+    },
+      'scale',
+    ),
   );
 }
 
@@ -144,7 +166,8 @@ function renderChordPanel(
       : items.find((i) => i.def.id === selectedId) ?? items[0];
 
   body.appendChild(
-    createListEditor({
+    createListEditor(
+      {
       items: items.map((item) => ({
         id: item.def.id,
         label: displayChordName(item.def, item.source),
@@ -172,7 +195,9 @@ function renderChordPanel(
         const readonly = !isNew && selected!.source === 'builtin';
         return createChordForm(def, readonly, isNew, callbacks, state);
       },
-    }),
+    },
+      'chord',
+    ),
   );
 }
 
@@ -184,7 +209,7 @@ interface ListEditorConfig {
   renderForm: () => HTMLElement;
 }
 
-function createListEditor(config: ListEditorConfig): HTMLElement {
+function createListEditor(config: ListEditorConfig, tab: LibraryTab): HTMLElement {
   const wrap = document.createElement('div');
   wrap.className = 'library-view__split';
 
@@ -209,12 +234,16 @@ function createListEditor(config: ListEditorConfig): HTMLElement {
       badge.textContent = item.badge;
       btn.appendChild(badge);
     }
-    btn.addEventListener('click', () => config.onSelect(item.id));
+    btn.addEventListener('click', () => {
+      libraryListScrollTop[tab] = list.scrollTop;
+      config.onSelect(item.id);
+    });
     li.appendChild(btn);
     list.appendChild(li);
   }
 
   listPane.appendChild(list);
+  bindLibraryListScroll(list, tab);
 
   const addBtn = document.createElement('button');
   addBtn.type = 'button';
@@ -230,6 +259,28 @@ function createListEditor(config: ListEditorConfig): HTMLElement {
   wrap.appendChild(listPane);
   wrap.appendChild(formPane);
   return wrap;
+}
+
+function bindLibraryListScroll(list: HTMLElement, tab: LibraryTab): void {
+  list.addEventListener(
+    'scroll',
+    () => {
+      libraryListScrollTop[tab] = list.scrollTop;
+    },
+    { passive: true },
+  );
+  const savedTop = libraryListScrollTop[tab];
+  if (savedTop <= 0) {
+    return;
+  }
+  requestAnimationFrame(() => {
+    list.scrollTop = savedTop;
+    requestAnimationFrame(() => {
+      if (list.scrollTop !== savedTop) {
+        list.scrollTop = savedTop;
+      }
+    });
+  });
 }
 
 function createScaleForm(
