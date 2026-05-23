@@ -87,18 +87,10 @@ function createCell(
   const actions = document.createElement('div');
   actions.className = 'diatonic-chords__actions';
 
-  const playBtn = document.createElement('button');
-  playBtn.type = 'button';
-  playBtn.className = 'diatonic-chords__btn diatonic-chords__btn--play';
-  playBtn.textContent = '▶';
-  playBtn.setAttribute('aria-label', `${entry.displayName} を同時再生`);
-  playBtn.addEventListener('click', () => {
-    options.onPlay({
-      chordKeyId: entry.chordKeyId,
-      chordId: entry.chordId,
-      playbackSemitones: entry.playbackSemitones,
-    });
-  });
+  const playIcon = document.createElement('span');
+  playIcon.className = 'diatonic-chords__btn diatonic-chords__btn--play';
+  playIcon.textContent = '▶';
+  playIcon.setAttribute('aria-hidden', 'true');
 
   const applyBtn = document.createElement('button');
   applyBtn.type = 'button';
@@ -112,13 +104,43 @@ function createCell(
       : `${entry.displayName} は選択未対応`,
   );
   if (selectable && entry.chordId !== null) {
-    applyBtn.addEventListener('click', () => {
+    applyBtn.addEventListener('click', (event) => {
+      event.stopPropagation();
       options.onApply(entry.chordKeyId, entry.chordId as string);
     });
   }
 
-  actions.appendChild(playBtn);
+  actions.appendChild(playIcon);
   actions.appendChild(applyBtn);
+
+  cell.classList.add('diatonic-chords__cell--playable');
+  cell.setAttribute('role', 'button');
+  cell.setAttribute('tabindex', '0');
+  cell.setAttribute('aria-label', `${entry.displayName} を同時再生`);
+  cell.addEventListener('click', (event) => {
+    if ((event.target as HTMLElement).closest('.diatonic-chords__btn--apply')) {
+      return;
+    }
+    options.onPlay({
+      chordKeyId: entry.chordKeyId,
+      chordId: entry.chordId,
+      playbackSemitones: entry.playbackSemitones,
+    });
+  });
+  cell.addEventListener('keydown', (event) => {
+    if (event.key !== 'Enter' && event.key !== ' ') {
+      return;
+    }
+    if ((event.target as HTMLElement).closest('.diatonic-chords__btn--apply')) {
+      return;
+    }
+    event.preventDefault();
+    options.onPlay({
+      chordKeyId: entry.chordKeyId,
+      chordId: entry.chordId,
+      playbackSemitones: entry.playbackSemitones,
+    });
+  });
 
   cell.appendChild(labels);
   cell.appendChild(actions);

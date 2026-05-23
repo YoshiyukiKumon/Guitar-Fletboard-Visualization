@@ -138,17 +138,15 @@ async function runChecks(page) {
   const intersections = page.locator('.fretboard__intersection');
   assert((await intersections.count()) === 150, 'expected 150 intersections (6×25)');
 
-  const capsules = page.locator('button.interval-capsule--playable');
-  assert((await capsules.count()) === 150, 'expected 150 playable capsules');
+  const tapTargets = page.locator('button.fretboard__tap-target');
+  assert((await tapTargets.count()) === 150, 'expected 150 fret tap targets (6×25)');
   assert(
-    (await capsules.first().getAttribute('aria-label'))?.includes('再生'),
-    'capsule should have play aria-label',
+    (await tapTargets.first().getAttribute('aria-label'))?.includes('再生'),
+    'tap target should have play aria-label',
   );
 
   const hitProbe = await page.evaluate(() => {
-    const btn = document.querySelector(
-      'button.interval-capsule--scale-root, button.interval-capsule--chord-root, button.interval-capsule--playable',
-    );
+    const btn = document.querySelector('button.fretboard__tap-target');
     if (!btn) {
       return null;
     }
@@ -161,7 +159,21 @@ async function runChecks(page) {
       className: el?.className ?? '',
     };
   });
-  assert(hitProbe?.isButton === true, `center of capsule should hit button, got ${hitProbe?.className}`);
+  assert(hitProbe?.isButton === true, `center of tap target should hit button, got ${hitProbe?.className}`);
+
+  const edgeHit = await page.evaluate(() => {
+    const btn = document.querySelector('button.fretboard__tap-target');
+    if (!btn) {
+      return false;
+    }
+    const r = btn.getBoundingClientRect();
+    const el = document.elementFromPoint(r.left + 3, r.top + r.height / 2);
+    return el === btn;
+  });
+  assert(edgeHit, 'left edge of fret tap target should be clickable');
+
+  const capsules = page.locator('.interval-capsule--playable');
+  assert((await capsules.count()) === 150, 'expected 150 visual capsules in interval mode');
 
   const borderRadius = await capsules.first().evaluate((el) => getComputedStyle(el).borderRadius);
   assert(
@@ -515,8 +527,12 @@ async function runChecks(page) {
   const diatonicCells = page.locator('.diatonic-chords__cell');
   assert((await diatonicCells.count()) === 7, 'dorian should show 7 diatonic chord cells');
   assert(
+    (await page.locator('.diatonic-chords__cell--playable').count()) === 7,
+    'each diatonic cell should be playable',
+  );
+  assert(
     (await page.locator('.diatonic-chords__btn--play').count()) === 7,
-    'each diatonic cell should have a play button',
+    'each diatonic cell should show a play icon',
   );
   assert(
     (await page.locator('.diatonic-chords__btn--apply').count()) === 7,

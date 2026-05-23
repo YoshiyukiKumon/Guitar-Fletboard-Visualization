@@ -128,7 +128,7 @@ function createOpenIntersection(
   node.className =
     'fretboard__intersection fretboard__intersection--nut fretboard__intersection--open';
 
-  attachPlayableCapsule(node, cell, viewMode, labelMode);
+  attachFretTapTarget(node, cell, viewMode, labelMode);
   return node;
 }
 
@@ -140,53 +140,48 @@ function createIntersection(
   const node = document.createElement('div');
   node.className = 'fretboard__intersection';
 
-  attachPlayableCapsule(node, cell, viewMode, labelMode);
+  attachFretTapTarget(node, cell, viewMode, labelMode);
   return node;
 }
 
-function attachPlayableCapsule(
+function attachFretTapTarget(
   intersection: HTMLElement,
   cell: FretCell,
   viewMode: FretboardViewMode,
   labelMode: LabelDisplayMode,
 ): void {
   const styleKind = resolveCapsuleStyle(cell, viewMode);
-  if (labelMode === 'dot' && styleKind === 'muted') {
-    return;
-  }
+  const showVisual = !(labelMode === 'dot' && styleKind === 'muted');
 
-  const anchor = document.createElement('div');
-  anchor.className = 'fretboard__capsule-anchor';
-
-  const capsule = document.createElement('button');
-  capsule.type = 'button';
-  capsule.className = capsuleClassFromKind(styleKind);
-  if (labelMode === 'dot') {
-    capsule.classList.add('interval-capsule--dot-circle');
-    capsule.textContent = '';
-  } else {
-    capsule.textContent = displayLabelForCell(cell, labelMode, viewMode);
-  }
+  const tapTarget = document.createElement('button');
+  tapTarget.type = 'button';
+  tapTarget.className = 'fretboard__tap-target';
   const pitchForAria =
     labelMode === 'kana'
       ? displayLabelForCell(cell, 'kana', viewMode)
       : cell.noteName;
-  capsule.setAttribute(
+  tapTarget.setAttribute(
     'aria-label',
     `${pitchForAria}（${STRING_LABEL_FOR_ARIA(cell.stringIndex)}弦 ${cell.fret} フレット）を再生`,
   );
 
-  const play = (): void => {
-    void tonePlayer.playFret(cell.stringIndex, cell.fret);
-  };
-
-  capsule.addEventListener('click', (event) => {
+  tapTarget.addEventListener('click', (event) => {
     event.stopPropagation();
-    play();
+    void tonePlayer.playFret(cell.stringIndex, cell.fret);
   });
 
-  anchor.appendChild(capsule);
-  intersection.appendChild(anchor);
+  if (showVisual) {
+    const capsule = document.createElement('span');
+    capsule.className = capsuleClassFromKind(styleKind);
+    if (labelMode === 'dot') {
+      capsule.classList.add('interval-capsule--dot-circle');
+    } else {
+      capsule.textContent = displayLabelForCell(cell, labelMode, viewMode);
+    }
+    tapTarget.appendChild(capsule);
+  }
+
+  intersection.appendChild(tapTarget);
 }
 
 function STRING_LABEL_FOR_ARIA(stringIndex: number): number {

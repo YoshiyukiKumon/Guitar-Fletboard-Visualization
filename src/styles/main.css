@@ -20,6 +20,9 @@
   --nut-width: calc(var(--fret-col-width) + 1.35rem);
   --fret-col-width: 3.1rem;
   --string-row-height: 1.425rem;
+  --fret-tap-inset-x: 10%;
+  --fret-tap-inset-y: 18%;
+  --fret-tap-inset-x-nut: 8%;
   --inlay-row-height: 1.1rem;
   --inlay-gap: 0.4rem;
   --inlay-dot-size: 0.52rem;
@@ -510,7 +513,40 @@ body {
   z-index: 1;
   overflow: visible;
   border-right: 2px solid var(--color-fret-wire);
+}
+
+.fretboard__tap-target {
+  position: absolute;
+  inset: var(--fret-tap-inset-y) var(--fret-tap-inset-x);
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.fretboard__intersection--open .fretboard__tap-target {
+  inset: var(--fret-tap-inset-y) var(--fret-tap-inset-x-nut);
+}
+
+.fretboard__tap-target:focus-visible {
+  outline: 2px solid #b8aea3;
+  outline-offset: -1px;
+}
+
+.fretboard__tap-target:active {
+  opacity: 0.88;
+}
+
+.fretboard__tap-target .interval-capsule {
   pointer-events: none;
+  cursor: inherit;
 }
 
 .fretboard__intersection--nut {
@@ -535,23 +571,6 @@ body {
   pointer-events: none;
 }
 
-/*
- * フレット間の配置（transform なし＝Chrome でタップ領域がずれない）
- * 幅 0 のアンカーを列中央に置き、カプセルを中央揃え（インレイ目印と同じ考え方）
- */
-.fretboard__capsule-anchor {
-  width: 0;
-  height: 100%;
-  min-height: var(--string-row-height);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: visible;
-  flex-shrink: 0;
-  z-index: 3;
-  pointer-events: auto;
-}
-
 .interval-capsule {
   display: block;
   flex-shrink: 0;
@@ -568,15 +587,17 @@ body {
   box-sizing: border-box;
   position: relative;
   z-index: 4;
-  pointer-events: auto;
-  cursor: pointer;
+  cursor: inherit;
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
 }
 
 .interval-capsule--playable:focus-visible {
-  outline: 2px solid #b8aea3;
-  outline-offset: 2px;
+  outline: none;
+}
+
+.fretboard__tap-target:focus-visible .interval-capsule--playable {
+  outline: none;
 }
 
 .interval-capsule--playable:active {
@@ -764,6 +785,21 @@ body {
   border-radius: 8px;
   background: #3d3228;
   text-align: center;
+}
+
+.diatonic-chords__cell--playable {
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.diatonic-chords__cell--playable:focus-visible {
+  outline: 2px solid #b8aea3;
+  outline-offset: 2px;
+}
+
+.diatonic-chords__cell--playable:active {
+  opacity: 0.92;
 }
 
 .diatonic-chords__cell--active {
