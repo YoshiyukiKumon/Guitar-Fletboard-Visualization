@@ -3,6 +3,8 @@ export function createSegmentSwitcher<T extends string>(config: {
   ariaLabel: string;
   modes: readonly T[];
   labels: Record<T, string>;
+  /** ボタン表示より詳しい説明（アクセシビリティ用） */
+  buttonAriaLabels?: Partial<Record<T, string>>;
   active: T;
   onChange: (mode: T) => void;
 }): HTMLElement {
@@ -21,6 +23,10 @@ export function createSegmentSwitcher<T extends string>(config: {
     btn.setAttribute('role', 'tab');
     btn.setAttribute('aria-selected', mode === config.active ? 'true' : 'false');
     btn.textContent = config.labels[mode];
+    const buttonAria = config.buttonAriaLabels?.[mode];
+    if (buttonAria !== undefined) {
+      btn.setAttribute('aria-label', buttonAria);
+    }
     if (mode === config.active) {
       btn.classList.add('segment-switcher__btn--active');
     }

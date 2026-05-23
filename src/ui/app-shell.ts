@@ -312,6 +312,7 @@ function createLabelModeSwitcher(
     ariaLabel: '指板の表示',
     modes: LABEL_DISPLAY_MODES,
     labels: LABEL_MODE_LABELS,
+    buttonAriaLabels: { kana: '音名(カナ)' },
     active: activeMode,
     onChange,
   });

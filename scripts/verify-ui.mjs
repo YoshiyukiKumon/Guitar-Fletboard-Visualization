@@ -380,7 +380,7 @@ async function runChecks(page) {
   assert(noteNameCount > 0, 'note mode should show pitch names like C');
 
   await page
-    .locator('.label-switcher .segment-switcher__btn', { hasText: '音名(カナ)' })
+    .locator('.label-switcher .segment-switcher__btn', { hasText: 'カナ' })
     .click();
   const kanaRoot = page.locator('.interval-capsule--scale-root').first();
   assert((await kanaRoot.textContent()) === 'ド', 'kana mode should show ド for C root');

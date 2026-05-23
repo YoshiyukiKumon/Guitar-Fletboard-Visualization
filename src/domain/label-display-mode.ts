@@ -13,7 +13,7 @@ export const LABEL_DISPLAY_MODES: readonly LabelDisplayMode[] = [
 export const LABEL_MODE_LABELS: Record<LabelDisplayMode, string> = {
   interval: 'インターバル',
   note: '音名',
-  kana: '音名(カナ)',
+  kana: 'カナ',
   dot: '●',
 };
 
