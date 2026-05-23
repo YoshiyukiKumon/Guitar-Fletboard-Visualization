@@ -29,6 +29,13 @@
 - サンプル読込失敗時のみ、各楽器の合成フォールバックを使用
 - **ナイロン弦**（Iowa MIS）: manifest は 1 ファイル 1 エントリ（`rootMidi` = ファイル名先頭音）。録音ピッチがやや低いため `samplePitchCents: 30` で補正
 
+## iOS Safari 向け AudioContext 復旧
+
+- バックグラウンド復帰時（`visibilitychange` → `visible`、bfcache の `pageshow`）に再解放フラグを立てる
+- ユーザー操作（タップ）の同期スタック内で `resume()` + 無音バッファを実行
+- 再生前に `suspended` / `interrupted` を `await resume()`。失敗または `currentTime` が進まない場合は **AudioContext を再作成**
+- 再作成時はサンプル `AudioBuffer` キャッシュを破棄し prefetch を再実行（manifest は保持）
+
 ## UI
 
 - **設定 > 再生音**: ラジオボタン + ▶ 試聴
@@ -40,7 +47,8 @@
 | ファイル | 役割 |
 |----------|------|
 | `src/domain/settings/instrument-catalog.ts` | 楽器定義レジストリ |
-| `src/audio/tone-player.ts` | 楽器切替・サンプル/合成再生 |
+| `src/audio/tone-player.ts` | 楽器切替・サンプル/合成再生・iOS 向け AudioContext 復旧 |
+| `src/audio/audio-context-state.ts` | AudioContext 一時停止状態の判定 |
 | `src/audio/synth-presets.ts` | 合成音プリセット |
 | `src/ui/settings-view.ts` | 設定 UI |
 
@@ -53,3 +61,4 @@
 | 1.2 | 2026-05-23 | エレキ系サンプル減衰 0.5 秒、ピアノ 0.7 秒（アコースティックは 1.5 秒） |
 | 1.3 | 2026-05-20 | ナイロン manifest 修正・`samplePitchCents` による音程補正 |
 | 1.4 | 2026-05-20 | iOS Safari 向け AudioContext 解放・サンプル URL 正規化 |
+| 1.5 | 2026-05-20 | iOS バックグラウンド復帰後の AudioContext 再解放・再作成 |

@@ -36,7 +36,23 @@ function installAudioUnlock(): void {
   document.addEventListener('pointerdown', unlock, { capture: true });
 }
 
-installAudioUnlock();
+function installAudioLifecycle(): void {
+  installAudioUnlock();
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') {
+      tonePlayer.markNeedsGestureReunlock();
+    }
+  });
+
+  window.addEventListener('pageshow', (event) => {
+    if (event.persisted) {
+      tonePlayer.markNeedsGestureReunlock();
+    }
+  });
+}
+
+installAudioLifecycle();
 
 function applySanitizedMusicIds(): void {
   const next = sanitizeMusicSelectionIds(settings);

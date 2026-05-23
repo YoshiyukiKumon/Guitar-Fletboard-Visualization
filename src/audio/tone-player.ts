@@ -32,6 +32,7 @@ import {
   playbackRateForMidi,
   type SampleManifest,
 } from './guitar-samples';
+import { isPausedAudioContextState } from './audio-context-state';
 
 const SCALE_NOTE_DURATION_SEC = 0.42;
 const SCALE_NOTE_GAP_SEC = 0.06;
@@ -41,6 +42,8 @@ const GUITAR_STRUM_NOTE_GAP_SEC = 0.032;
 const FRET_TAP_DURATION_SEC = 1.5;
 const SAMPLE_PEAK_GAIN = 0.92;
 const PREVIEW_MIDI = 60;
+/** iOS Safari: running でも currentTime が進まない壊れたコンテキストを検出 */
+const CONTEXT_HEALTH_CHECK_MS = 50;
 
 interface InstrumentSampleState {
   manifest: SampleManifest | null;
@@ -56,6 +59,8 @@ export class TonePlayer {
   private volume = 0.8;
   private instrumentId: InstrumentId = DEFAULT_INSTRUMENT_ID;
   private sampleStateByInstrument = new Map<InstrumentId, InstrumentSampleState>();
+  private needsGestureReunlock = false;
+  private recoveryPromise: Promise<AudioContext> | null = null;
 
   setVolume(percent: number): void {
     this.volume = Math.min(100, Math.max(0, percent)) / 100;
@@ -83,14 +88,27 @@ export class TonePlayer {
     return this.instrumentId;
   }
 
+  /** バックグラウンド復帰後、次のユーザー操作で AudioContext を再解放する */
+  markNeedsGestureReunlock(): void {
+    this.needsGestureReunlock = true;
+  }
+
   /** iOS Safari 向け: ユーザー操作の同期スタック内で AudioContext を解放する */
   unlockFromUserGesture(): void {
-    const ctx = this.ensureContextSync();
-    if (ctx.state === 'suspended') {
+    this.kickAudioContextInUserGesture();
+    void this.prefetchCurrentInstrument();
+  }
+
+  private kickAudioContextInUserGesture(): void {
+    let ctx = this.ensureContextSync();
+    if (ctx.state === 'closed') {
+      this.recreateAudioContext();
+      ctx = this.ensureContextSync();
+    }
+    if (this.needsGestureReunlock || isPausedAudioContextState(ctx.state)) {
       void ctx.resume();
     }
     this.playSilentBuffer(ctx);
-    void this.prefetchCurrentInstrument();
   }
 
   async previewInstrument(instrumentId: InstrumentId): Promise<void> {
@@ -269,11 +287,95 @@ export class TonePlayer {
   }
 
   private async prepareContext(): Promise<AudioContext> {
-    const ctx = this.ensureContextSync();
-    if (ctx.state === 'suspended') {
-      await ctx.resume();
+    if (this.recoveryPromise !== null) {
+      return this.recoveryPromise;
     }
+
+    this.recoveryPromise = this.recoverRunningContext();
+    try {
+      return await this.recoveryPromise;
+    } finally {
+      this.recoveryPromise = null;
+    }
+  }
+
+  private async recoverRunningContext(): Promise<AudioContext> {
+    let ctx = this.ensureContextSync();
+    if (ctx.state === 'closed') {
+      this.recreateAudioContext();
+      ctx = this.ensureContextSync();
+    }
+
+    const mustRecover =
+      this.needsGestureReunlock
+      || isPausedAudioContextState(ctx.state)
+      || ctx.state === 'closed';
+
+    if (mustRecover) {
+      ctx = await this.resumeOrRecreateContext(ctx);
+      if (!(await this.isContextHealthy(ctx))) {
+        this.recreateAudioContext();
+        ctx = this.ensureContextSync();
+        ctx = await this.resumeOrRecreateContext(ctx);
+        this.playSilentBuffer(ctx);
+      }
+      this.needsGestureReunlock = false;
+    }
+
     return ctx;
+  }
+
+  private async resumeOrRecreateContext(ctx: AudioContext): Promise<AudioContext> {
+    if (ctx.state === 'closed') {
+      this.recreateAudioContext();
+      ctx = this.ensureContextSync();
+    }
+
+    if (isPausedAudioContextState(ctx.state)) {
+      try {
+        await ctx.resume();
+      } catch {
+        this.recreateAudioContext();
+        ctx = this.ensureContextSync();
+        await ctx.resume().catch(() => undefined);
+      }
+    }
+
+    return ctx;
+  }
+
+  private async isContextHealthy(ctx: AudioContext): Promise<boolean> {
+    if (ctx.state === 'closed' || isPausedAudioContextState(ctx.state)) {
+      return false;
+    }
+    if (ctx.state !== 'running') {
+      return false;
+    }
+
+    const startedAt = ctx.currentTime;
+    await new Promise((resolve) => {
+      setTimeout(resolve, CONTEXT_HEALTH_CHECK_MS);
+    });
+    if (ctx.state !== 'running') {
+      return false;
+    }
+    return ctx.currentTime > startedAt;
+  }
+
+  private recreateAudioContext(): void {
+    const previous = this.context;
+    this.context = null;
+    this.masterGain = null;
+    this.sessionId += 1;
+
+    if (previous !== null && previous.state !== 'closed') {
+      void previous.close();
+    }
+
+    for (const state of this.sampleStateByInstrument.values()) {
+      state.bufferByFile.clear();
+      state.prefetchStarted = false;
+    }
   }
 
   private async prefetchCurrentInstrument(): Promise<void> {
