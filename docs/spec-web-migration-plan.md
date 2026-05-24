@@ -3,7 +3,7 @@
 | 項目 | 内容 |
 |------|------|
 | 対象 | [Google スプレッドシート（指板シート）](https://docs.google.com/spreadsheets/d/1sCqKepwK0TNzZmO3XilLsjShJIk2sYUvp0sV3nm0hxM/edit?gid=1029034944) |
-| リポジトリ | `guitar-practice` |
+| リポジトリ | `Guitar-Fretboard-Visualization` |
 | 更新日 | 2026-05-20 |
 | ステータス | 方針確定（MVP 仕様更新済み） |
 
@@ -623,3 +623,4 @@ Phase 1 では上記 2 組のみ UI に接続する。§8.4・§8.5 の全件は
 | 2.52 | 2026-05-20 | オクターブ下げ境界を C〜F#（-12）/ G 以上（-24）に変更 |
 | 2.53 | 2026-05-20 | 指板タップ領域拡張後の横スクロール不能を修正（交点 pointer-events・pan-x） |
 | 2.54 | 2026-05-20 | 指板スクロールを領域全体で統一（ホイール・ドラッグ、タップ誤発火抑制） |
+| 2.55 | 2026-05-20 | GitHub リポジトリ名を `Guitar-Fretboard-Visualization` に修正（綴り） |

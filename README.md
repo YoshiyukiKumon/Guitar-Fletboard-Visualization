@@ -48,7 +48,7 @@ npm run verify:standalone   # file:// で単体 HTML を検証
 
 `main` への push で自動デプロイされます（`.github/workflows/deploy-pages.yml`）。
 
-- 公開 URL: https://yoshiyukikumon.github.io/Guitar-Fletboard-Visualization/
+- 公開 URL: https://yoshiyukikumon.github.io/Guitar-Fretboard-Visualization/
 - 初回はリポジトリ **Settings → Pages → Source** を **GitHub Actions** に設定してください
 - デプロイ失敗時の戻し方: [docs/github-actions-pages-rollback.md](docs/github-actions-pages-rollback.md)
 

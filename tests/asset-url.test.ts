@@ -6,21 +6,21 @@ import {
 
 describe('appBasePathFromLocation', () => {
   it('keeps trailing slash paths', () => {
-    expect(appBasePathFromLocation('/Guitar-Fletboard-Visualization/')).toBe(
-      '/Guitar-Fletboard-Visualization/',
+    expect(appBasePathFromLocation('/Guitar-Fretboard-Visualization/')).toBe(
+      '/Guitar-Fretboard-Visualization/',
     );
   });
 
   it('adds slash when pathname has no trailing slash', () => {
-    expect(appBasePathFromLocation('/Guitar-Fletboard-Visualization')).toBe(
-      '/Guitar-Fletboard-Visualization/',
+    expect(appBasePathFromLocation('/Guitar-Fretboard-Visualization')).toBe(
+      '/Guitar-Fretboard-Visualization/',
     );
   });
 
   it('normalizes index.html paths', () => {
     expect(
-      appBasePathFromLocation('/Guitar-Fletboard-Visualization/index.html'),
-    ).toBe('/Guitar-Fletboard-Visualization/');
+      appBasePathFromLocation('/Guitar-Fretboard-Visualization/index.html'),
+    ).toBe('/Guitar-Fretboard-Visualization/');
   });
 });
 
@@ -29,13 +29,13 @@ describe('sampleBaseUrlForSampleDir', () => {
     vi.stubGlobal('window', {
       location: {
         origin: 'https://example.github.io',
-        pathname: '/Guitar-Fletboard-Visualization',
-        href: 'https://example.github.io/Guitar-Fletboard-Visualization',
+        pathname: '/Guitar-Fretboard-Visualization',
+        href: 'https://example.github.io/Guitar-Fretboard-Visualization',
       },
     });
     try {
       expect(sampleBaseUrlForSampleDir('steel-guitar')).toBe(
-        'https://example.github.io/Guitar-Fletboard-Visualization/samples/steel-guitar/',
+        'https://example.github.io/Guitar-Fretboard-Visualization/samples/steel-guitar/',
       );
     } finally {
       vi.unstubAllGlobals();
