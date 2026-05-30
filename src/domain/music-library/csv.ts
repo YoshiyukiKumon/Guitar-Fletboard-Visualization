@@ -137,9 +137,11 @@ export function parseLibraryCsv(text: string): CsvImportPreview {
 }
 
 export function applyCustomLibraryImport(preview: CsvImportPreview): CustomMusicLibrary {
+  const existing = loadCustomLibrary();
   const library: CustomMusicLibrary = {
     scales: preview.scales,
     chords: preview.chords,
+    strumPatterns: existing.strumPatterns,
   };
   return library;
 }

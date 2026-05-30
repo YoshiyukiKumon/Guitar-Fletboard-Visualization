@@ -2,6 +2,7 @@ import { tonePlayer } from '../audio/tone-player';
 import type { ChordDef } from '../domain/data/chords';
 import { MVP_KEY } from '../domain/data/keys';
 import type { ScaleDef } from '../domain/data/scales';
+import { clampBpm, DEFAULT_BPM, MAX_BPM, MIN_BPM } from '../domain/playback-bpm';
 import {
   applyCustomLibraryImport,
   exportLibraryCsv,
@@ -10,41 +11,53 @@ import {
 import {
   deleteCustomChord,
   deleteCustomScale,
+  deleteCustomStrumPattern,
   duplicateChordAsCustom,
   duplicateScaleAsCustom,
+  duplicateStrumPatternAsCustom,
   resetLibraryToInitial,
   upsertCustomChord,
   upsertCustomScale,
+  upsertCustomStrumPattern,
 } from '../domain/music-library/custom-crud';
 import {
   displayChordName,
   displayScaleName,
+  displayStrumPatternName,
   listChords,
   listScales,
+  listStrumPatterns,
 } from '../domain/music-library/registry';
 import { saveCustomLibrary } from '../domain/music-library/storage';
 import { getToneLabelOptions } from '../domain/music-library/tone-label-options';
 import { createSegmentSwitcher } from './segment-switcher';
+import type { StrumPatternDef } from '../domain/strum-pattern/strum-pattern';
+import { parseStrumPatternDef } from '../domain/strum-pattern/strum-pattern';
+import { t } from '../i18n';
 
-export type LibraryTab = 'scale' | 'chord';
+export type LibraryTab = 'scale' | 'chord' | 'strum';
 
 const libraryListScrollTop: Record<LibraryTab, number> = {
   scale: 0,
   chord: 0,
+  strum: 0,
 };
 
 /** CSV 取込・リセット後はリスト先頭に戻す */
 export function resetLibraryListScroll(): void {
   libraryListScrollTop.scale = 0;
   libraryListScrollTop.chord = 0;
+  libraryListScrollTop.strum = 0;
 }
 
 export interface LibraryViewState {
   tab: LibraryTab;
   selectedScaleId: string | null;
   selectedChordId: string | null;
+  selectedStrumPatternId: string | null;
   draftScale?: ScaleDef | null;
   draftChord?: ChordDef | null;
+  draftStrumPattern?: StrumPatternDef | null;
 }
 
 export interface LibraryViewCallbacks {
@@ -66,13 +79,17 @@ export function createLibraryView(
 
   const root = document.createElement('section');
   root.className = 'library-view';
-  root.setAttribute('aria-label', 'スケール・コードライブラリ');
+  root.setAttribute('aria-label', t('library.ariaLabel'));
 
   const tabBar = createSegmentSwitcher({
     className: 'segment-switcher library-view__tabs',
-    ariaLabel: 'ライブラリの種類',
-    modes: ['scale', 'chord'] as const,
-    labels: { scale: 'スケール', chord: 'コード' },
+    ariaLabel: t('library.tabs.aria'),
+    modes: ['scale', 'chord', 'strum'] as const,
+    labels: {
+      scale: t('library.tabs.scale'),
+      chord: t('library.tabs.chord'),
+      strum: t('library.tabs.strum'),
+    },
     active: state.tab,
     onChange: (tab) => {
       wrappedCallbacks.onStateChange({ ...state, tab });
@@ -90,8 +107,10 @@ export function createLibraryView(
 
   if (state.tab === 'scale') {
     renderScalePanel(body, state, wrappedCallbacks);
-  } else {
+  } else if (state.tab === 'chord') {
     renderChordPanel(body, state, wrappedCallbacks);
+  } else {
+    renderStrumPanel(body, state, wrappedCallbacks);
   }
 
   renderToolbar(toolbar, wrappedCallbacks);
@@ -120,7 +139,7 @@ function renderScalePanel(
       items: items.map((item) => ({
         id: item.def.id,
         label: displayScaleName(item.def, item.source),
-        badge: item.source === 'builtin' ? '組み込み' : null,
+        badge: item.source === 'builtin' ? t('library.badge.builtin') : null,
       })),
       selectedId: selected?.def.id ?? null,
       onSelect: (id) => {
@@ -135,7 +154,7 @@ function renderScalePanel(
       },
       renderForm: () => {
         if (!selected && state.selectedScaleId !== '__new__') {
-          return createMessage('スケールを選択するか、新規追加してください');
+          return createMessage(t('library.empty.scale'));
         }
         const isNew = state.selectedScaleId === '__new__';
         const def = isNew
@@ -171,7 +190,7 @@ function renderChordPanel(
       items: items.map((item) => ({
         id: item.def.id,
         label: displayChordName(item.def, item.source),
-        badge: item.source === 'builtin' ? '組み込み' : null,
+        badge: item.source === 'builtin' ? t('library.badge.builtin') : null,
       })),
       selectedId: selected?.def.id ?? null,
       onSelect: (id) => {
@@ -186,7 +205,7 @@ function renderChordPanel(
       },
       renderForm: () => {
         if (!selected && state.selectedChordId !== '__new__') {
-          return createMessage('コードを選択するか、新規追加してください');
+          return createMessage(t('library.empty.chord'));
         }
         const isNew = state.selectedChordId === '__new__';
         const def = isNew
@@ -197,6 +216,62 @@ function renderChordPanel(
       },
     },
       'chord',
+    ),
+  );
+}
+
+function renderStrumPanel(
+  body: HTMLElement,
+  state: LibraryViewState,
+  callbacks: LibraryViewCallbacks,
+): void {
+  const items = listStrumPatterns();
+  const selectedId =
+    state.selectedStrumPatternId === '__new__'
+      ? '__new__'
+      : (state.selectedStrumPatternId ?? items[0]?.def.id ?? null);
+  const selected =
+    selectedId === '__new__'
+      ? undefined
+      : items.find((item) => item.def.id === selectedId) ?? items[0];
+
+  body.appendChild(
+    createListEditor(
+      {
+        items: items.map((item) => ({
+          id: item.def.id,
+          label: displayStrumPatternName(item.def, item.source),
+          badge: item.source === 'builtin' ? t('library.badge.builtin') : null,
+        })),
+        selectedId: selected?.def.id ?? null,
+        onSelect: (id) => {
+          callbacks.onStateChange({ ...state, selectedStrumPatternId: id });
+        },
+        onAdd: () => {
+          callbacks.onStateChange({
+            ...state,
+            selectedStrumPatternId: '__new__',
+            draftStrumPattern: null,
+          });
+        },
+        renderForm: () => {
+          if (!selected && state.selectedStrumPatternId !== '__new__') {
+            return createMessage(t('library.empty.strum'));
+          }
+          const isNew = state.selectedStrumPatternId === '__new__';
+          const def = isNew
+            ? (state.draftStrumPattern ?? {
+                id: '',
+                name: '',
+                timeSignature: '4/4',
+                notation: '4, 4(>), 4, 4(>)',
+              })
+            : selected!.def;
+          const readonly = !isNew && selected!.source === 'builtin';
+          return createStrumPatternForm(def, readonly, isNew, callbacks, state);
+        },
+      },
+      'strum',
     ),
   );
 }
@@ -248,7 +323,7 @@ function createListEditor(config: ListEditorConfig, tab: LibraryTab): HTMLElemen
   const addBtn = document.createElement('button');
   addBtn.type = 'button';
   addBtn.className = 'library-view__add-btn';
-  addBtn.textContent = '+ 新規追加';
+  addBtn.textContent = t('library.add');
   addBtn.addEventListener('click', config.onAdd);
   listPane.appendChild(addBtn);
 
@@ -281,6 +356,134 @@ function bindLibraryListScroll(list: HTMLElement, tab: LibraryTab): void {
       }
     });
   });
+}
+
+function createStrumPatternForm(
+  def: StrumPatternDef,
+  readonly: boolean,
+  isNew: boolean,
+  callbacks: LibraryViewCallbacks,
+  state: LibraryViewState,
+): HTMLElement {
+  const form = document.createElement('div');
+  form.className = 'library-view__form';
+
+  const errorsEl = document.createElement('div');
+  errorsEl.className = 'library-view__errors';
+  errorsEl.hidden = true;
+
+  const nameInput = document.createElement('input');
+  nameInput.className = 'library-view__input';
+  nameInput.value = def.name;
+  nameInput.readOnly = readonly;
+
+  const timeSignatureInput = document.createElement('input');
+  timeSignatureInput.className = 'library-view__input';
+  timeSignatureInput.value = def.timeSignature || '4/4';
+  timeSignatureInput.readOnly = readonly;
+  timeSignatureInput.placeholder = '4/4';
+
+  const notationInput = document.createElement('input');
+  notationInput.className = 'library-view__input library-view__input--wide';
+  notationInput.value = def.notation;
+  notationInput.readOnly = readonly;
+  notationInput.placeholder = '4, 4(>), 4, 4(>)';
+
+  const notationHint = document.createElement('p');
+  notationHint.className = 'library-view__hint';
+  notationHint.textContent = t('library.strum.hint');
+
+  const getPreviewDef = (): StrumPatternDef => ({
+    id: def.id || '__preview__',
+    name: nameInput.value.trim() || def.name,
+    timeSignature: timeSignatureInput.value.trim() || '4/4',
+    notation: notationInput.value.trim(),
+  });
+
+  const previewRow = createStrumPreviewRow(
+    getPreviewDef,
+    timeSignatureInput,
+    notationInput,
+  );
+
+  form.appendChild(createField(t('library.field.name'), nameInput));
+  form.appendChild(createField(t('library.field.timeSig'), timeSignatureInput));
+  form.appendChild(createField(t('library.field.pattern'), notationInput));
+  form.appendChild(notationHint);
+  form.appendChild(previewRow);
+  form.appendChild(errorsEl);
+
+  const actions = document.createElement('div');
+  actions.className = 'library-view__form-actions';
+
+  if (!readonly) {
+    const saveBtn = document.createElement('button');
+    saveBtn.type = 'button';
+    saveBtn.className = 'library-view__btn library-view__btn--primary';
+    saveBtn.textContent = t('library.save');
+    saveBtn.addEventListener('click', () => {
+      const next = {
+        id: isNew ? '' : def.id,
+        name: nameInput.value.trim(),
+        timeSignature: timeSignatureInput.value.trim(),
+        notation: notationInput.value.trim(),
+      };
+      const result = upsertCustomStrumPattern(next);
+      if (!result.ok) {
+        errorsEl.textContent = result.errors.join('\n');
+        errorsEl.hidden = false;
+      } else {
+        errorsEl.hidden = true;
+        callbacks.onLibraryChanged();
+        callbacks.onStateChange({
+          ...state,
+          selectedStrumPatternId: result.id ?? next.id,
+          draftStrumPattern: null,
+        });
+      }
+    });
+    actions.appendChild(saveBtn);
+
+    if (!isNew) {
+      const delBtn = document.createElement('button');
+      delBtn.type = 'button';
+      delBtn.className = 'library-view__btn library-view__btn--danger';
+      delBtn.textContent = t('library.delete');
+      delBtn.addEventListener('click', () => {
+        if (window.confirm(t('library.deleteConfirm', { name: def.name }))) {
+          deleteCustomStrumPattern(def.id);
+          callbacks.onLibraryChanged();
+          callbacks.onStateChange({
+            ...state,
+            selectedStrumPatternId: null,
+            draftStrumPattern: null,
+          });
+        }
+      });
+      actions.appendChild(delBtn);
+    }
+  }
+
+  if (readonly) {
+    const dupBtn = document.createElement('button');
+    dupBtn.type = 'button';
+    dupBtn.className = 'library-view__btn';
+    dupBtn.textContent = t('library.duplicate');
+    dupBtn.addEventListener('click', () => {
+      const copy = duplicateStrumPatternAsCustom(def.id);
+      if (copy) {
+        callbacks.onStateChange({
+          ...state,
+          selectedStrumPatternId: '__new__',
+          draftStrumPattern: copy,
+        });
+      }
+    });
+    actions.appendChild(dupBtn);
+  }
+
+  form.appendChild(actions);
+  return form;
 }
 
 function createScaleForm(
@@ -444,8 +647,8 @@ function createTonePicker(
         const removeBtn = document.createElement('button');
         removeBtn.type = 'button';
         removeBtn.className = 'library-view__tone-remove';
-        removeBtn.textContent = '削除';
-        removeBtn.setAttribute('aria-label', 'この構成音を削除');
+        removeBtn.textContent = t('library.removeTone');
+        removeBtn.setAttribute('aria-label', t('library.removeToneAria'));
         removeBtn.addEventListener('click', () => {
           tones.splice(index, 1);
           render();
@@ -459,7 +662,7 @@ function createTonePicker(
     const addBtn = document.createElement('button');
     addBtn.type = 'button';
     addBtn.className = 'library-view__add-tone-btn';
-    addBtn.textContent = '+ 構成音を追加';
+    addBtn.textContent = t('library.addTone');
     addBtn.addEventListener('click', () => {
       tones.push(masterOptions[0] ?? 'R');
       render();
@@ -496,9 +699,9 @@ function createDefForm(config: DefFormConfig): HTMLElement {
     tones: tonePicker.getTones(),
   });
 
-  form.appendChild(createField('名前', nameInput));
+  form.appendChild(createField(t('library.field.name'), nameInput));
   form.appendChild(createPlaybackRow(config.kind, getPreviewDef));
-  form.appendChild(createField('構成音', tonePicker.element));
+  form.appendChild(createField(t('library.field.tones'), tonePicker.element));
   form.appendChild(errorsEl);
 
   const actions = document.createElement('div');
@@ -508,7 +711,7 @@ function createDefForm(config: DefFormConfig): HTMLElement {
     const saveBtn = document.createElement('button');
     saveBtn.type = 'button';
     saveBtn.className = 'library-view__btn library-view__btn--primary';
-    saveBtn.textContent = '保存';
+    saveBtn.textContent = t('library.save');
     saveBtn.addEventListener('click', () => {
       const next = {
         id: config.isNew ? '' : config.def.id,
@@ -529,9 +732,9 @@ function createDefForm(config: DefFormConfig): HTMLElement {
       const delBtn = document.createElement('button');
       delBtn.type = 'button';
       delBtn.className = 'library-view__btn library-view__btn--danger';
-      delBtn.textContent = '削除';
+      delBtn.textContent = t('library.delete');
       delBtn.addEventListener('click', () => {
-        if (window.confirm(`「${config.def.name}」を削除しますか？`)) {
+        if (window.confirm(t('library.deleteConfirm', { name: config.def.name }))) {
           config.onDelete();
         }
       });
@@ -543,7 +746,7 @@ function createDefForm(config: DefFormConfig): HTMLElement {
     const dupBtn = document.createElement('button');
     dupBtn.type = 'button';
     dupBtn.className = 'library-view__btn';
-    dupBtn.textContent = '複製してカスタム追加';
+    dupBtn.textContent = t('library.duplicate');
     dupBtn.addEventListener('click', () => {
       config.onDuplicate?.();
     });
@@ -564,9 +767,10 @@ function createPlaybackRow(
   if (kind === 'scale') {
     row.appendChild(
       createLibraryPlayButton(
-        '▶ 再生',
-        'スケールを順番に再生（プレビュー・C ルート）',
+        t('library.preview.play'),
+        t('library.preview.scaleAria'),
         () => {
+          tonePlayer.stop();
           void tonePlayer.playScale(MVP_KEY, getPreviewDef() as ScaleDef);
         },
       ),
@@ -576,8 +780,8 @@ function createPlaybackRow(
 
   row.appendChild(
     createLibraryPlayButton(
-      '▶ 同時',
-      'コードトーンを同時に再生（プレビュー・C ルート）',
+      t('library.preview.block'),
+      t('library.preview.blockAria'),
       () => {
         void tonePlayer.playChord(MVP_KEY, getPreviewDef() as ChordDef);
       },
@@ -585,13 +789,103 @@ function createPlaybackRow(
   );
   row.appendChild(
     createLibraryPlayButton(
-      '▶ アルペジオ',
-      'コードトーンをルートから順に再生（プレビュー・C ルート）',
+      t('library.preview.arpeggio'),
+      t('library.preview.arpeggioAria'),
       () => {
+        tonePlayer.stop();
         void tonePlayer.playChordArpeggio(MVP_KEY, getPreviewDef() as ChordDef);
       },
     ),
   );
+  return row;
+}
+
+function createStrumPreviewRow(
+  getPreviewDef: () => StrumPatternDef,
+  timeSignatureInput: HTMLInputElement,
+  notationInput: HTMLInputElement,
+): HTMLElement {
+  const row = document.createElement('div');
+  row.className = 'library-view__playback library-view__strum-preview';
+
+  const bpmLabel = document.createElement('label');
+  bpmLabel.className = 'library-view__preview-bpm';
+  bpmLabel.textContent = 'BPM';
+
+  const bpmInput = document.createElement('input');
+  bpmInput.type = 'number';
+  bpmInput.className = 'library-view__preview-bpm-input';
+  bpmInput.min = String(MIN_BPM);
+  bpmInput.max = String(MAX_BPM);
+  bpmInput.step = '1';
+  bpmInput.value = String(tonePlayer.getBpm() || DEFAULT_BPM);
+  bpmInput.setAttribute('aria-label', t('library.preview.bpmAria'));
+  bpmLabel.appendChild(bpmInput);
+
+  const playBtn = document.createElement('button');
+  playBtn.type = 'button';
+  playBtn.className = 'library-view__play';
+
+  const syncButton = (): void => {
+    const isActive = tonePlayer.isPlaybackActive('library:strum-preview');
+    playBtn.textContent = isActive
+      ? t('library.preview.stop')
+      : t('library.preview.strum');
+    playBtn.setAttribute(
+      'aria-label',
+      isActive
+        ? t('library.preview.strumStopAria')
+        : t('library.preview.strumAria'),
+    );
+    playBtn.classList.toggle('library-view__play--active', isActive);
+  };
+
+  const commitBpm = (): void => {
+    const next = clampBpm(Number(bpmInput.value));
+    bpmInput.value = String(next);
+    if (tonePlayer.isPlaybackActive('library:strum-preview')) {
+      tonePlayer.setBpm(next);
+    }
+  };
+
+  const resyncPreviewPattern = (): void => {
+    if (!tonePlayer.isPlaybackActive('library:strum-preview')) {
+      return;
+    }
+    const preview = getPreviewDef();
+    if (parseStrumPatternDef(preview) === null) {
+      tonePlayer.stopRepeat();
+      return;
+    }
+    tonePlayer.updateStrumPatternPreview(preview);
+  };
+
+  playBtn.addEventListener('click', () => {
+    if (tonePlayer.isPlaybackActive('library:strum-preview')) {
+      tonePlayer.stopRepeat();
+      return;
+    }
+    const preview = getPreviewDef();
+    if (parseStrumPatternDef(preview) === null) {
+      window.alert(t('library.preview.invalid'));
+      return;
+    }
+    void tonePlayer.previewStrumPatternRepeat(
+      preview,
+      clampBpm(Number(bpmInput.value)),
+    );
+  });
+
+  bpmInput.addEventListener('change', commitBpm);
+  bpmInput.addEventListener('blur', commitBpm);
+  timeSignatureInput.addEventListener('change', resyncPreviewPattern);
+  notationInput.addEventListener('change', resyncPreviewPattern);
+
+  tonePlayer.subscribePlayback(syncButton);
+  syncButton();
+
+  row.appendChild(bpmLabel);
+  row.appendChild(playBtn);
   return row;
 }
 
@@ -636,7 +930,7 @@ function renderToolbar(
   const downloadBtn = document.createElement('button');
   downloadBtn.type = 'button';
   downloadBtn.className = 'library-view__btn';
-  downloadBtn.textContent = 'CSVダウンロード';
+  downloadBtn.textContent = t('library.csv.download');
   downloadBtn.addEventListener('click', () => {
     const csv = exportLibraryCsv();
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
@@ -650,7 +944,7 @@ function renderToolbar(
 
   const uploadLabel = document.createElement('label');
   uploadLabel.className = 'library-view__btn library-view__btn--upload';
-  uploadLabel.textContent = 'CSVアップロード';
+  uploadLabel.textContent = t('library.csv.upload');
   const fileInput = document.createElement('input');
   fileInput.type = 'file';
   fileInput.accept = '.csv,text/csv';
@@ -665,11 +959,14 @@ function renderToolbar(
     const preview = parseLibraryCsv(text);
     if (preview.errors.length > 0) {
       window.alert(
-        `CSV の読み込みエラー:\n${preview.errors.slice(0, 8).join('\n')}`,
+        `${t('library.csv.error')}\n${preview.errors.slice(0, 8).join('\n')}`,
       );
       return;
     }
-    const msg = `カスタム定義を置き換えます。\nスケール ${preview.scales.length} 件\nコード ${preview.chords.length} 件\nよろしいですか？`;
+    const msg = t('library.csv.confirmDetail', {
+      scaleCount: preview.scales.length,
+      chordCount: preview.chords.length,
+    });
     if (!window.confirm(msg)) {
       return;
     }
@@ -681,16 +978,12 @@ function renderToolbar(
   const resetBtn = document.createElement('button');
   resetBtn.type = 'button';
   resetBtn.className = 'library-view__btn library-view__btn--danger';
-  resetBtn.textContent = '初期状態にリセット';
+  resetBtn.textContent = t('library.reset');
   resetBtn.addEventListener('click', () => {
-    if (
-      !window.confirm(
-        'カスタムのスケール・コードをすべて削除します。よろしいですか？',
-      )
-    ) {
+    if (!window.confirm(t('library.reset.confirm1'))) {
       return;
     }
-    if (!window.confirm('この操作は取り消せません。本当に実行しますか？')) {
+    if (!window.confirm(t('library.reset.confirm2'))) {
       return;
     }
     resetLibraryToInitial();

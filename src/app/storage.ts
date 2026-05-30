@@ -15,6 +15,15 @@ import {
   normalizeInstrumentId,
   type InstrumentId,
 } from '../domain/settings/instrument-catalog';
+import { clampBpm, DEFAULT_BPM } from '../domain/playback-bpm';
+import {
+  DEFAULT_STRUM_PATTERN_ID,
+} from '../domain/strum-pattern/strum-pattern';
+import { isKnownStrumPatternId } from '../domain/music-library/registry';
+import {
+  type AppLocale,
+  normalizeLocale,
+} from '../i18n/locale';
 
 const STORAGE_KEY = 'guitar-practice-settings';
 
@@ -23,6 +32,8 @@ export type AppMode = 'practice' | 'library' | 'settings';
 export interface AppSettings {
   appMode: AppMode;
   instrumentId: InstrumentId;
+  /** コードリピート再生の楽器 ID */
+  repeatInstrumentId: InstrumentId;
   viewMode: FretboardViewMode;
   labelMode: LabelDisplayMode;
   scaleKeyId: string;
@@ -31,11 +42,18 @@ export interface AppSettings {
   chordId: string;
   /** 再生音量 0〜100 */
   volume: number;
+  /** 構成音パネル再生テンポ */
+  bpm: number;
+  /** リピート再生のストロークパターン ID */
+  strumPatternId: string;
+  /** 表示言語 */
+  locale: AppLocale;
 }
 
 const DEFAULT_SETTINGS: AppSettings = {
   appMode: 'practice',
   instrumentId: DEFAULT_INSTRUMENT_ID,
+  repeatInstrumentId: DEFAULT_INSTRUMENT_ID,
   viewMode: 'scale',
   labelMode: 'dot',
   scaleKeyId: MVP_KEY.id,
@@ -43,6 +61,9 @@ const DEFAULT_SETTINGS: AppSettings = {
   chordKeyId: MVP_KEY.id,
   chordId: MVP_CHORD.id,
   volume: 80,
+  bpm: DEFAULT_BPM,
+  strumPatternId: DEFAULT_STRUM_PATTERN_ID,
+  locale: 'ja',
 };
 
 function isAppMode(value: unknown): value is AppMode {
@@ -50,11 +71,14 @@ function isAppMode(value: unknown): value is AppMode {
 }
 
 export function sanitizeMusicSelectionIds(
-  settings: Pick<AppSettings, 'scaleId' | 'chordId'>,
-): Pick<AppSettings, 'scaleId' | 'chordId'> {
+  settings: Pick<AppSettings, 'scaleId' | 'chordId' | 'strumPatternId'>,
+): Pick<AppSettings, 'scaleId' | 'chordId' | 'strumPatternId'> {
   return {
     scaleId: isScaleId(settings.scaleId) ? settings.scaleId : MVP_SCALE.id,
     chordId: isChordId(settings.chordId) ? settings.chordId : MVP_CHORD.id,
+    strumPatternId: isKnownStrumPatternId(settings.strumPatternId)
+      ? settings.strumPatternId
+      : DEFAULT_STRUM_PATTERN_ID,
   };
 }
 
@@ -99,6 +123,9 @@ export function loadSettings(): AppSettings {
           ? parsed.appMode
           : DEFAULT_SETTINGS.appMode,
       instrumentId: normalizeInstrumentId(parsed.instrumentId),
+      repeatInstrumentId: normalizeInstrumentId(
+        parsed.repeatInstrumentId ?? parsed.instrumentId,
+      ),
       viewMode:
         parsed.viewMode && isFretboardViewMode(parsed.viewMode)
           ? parsed.viewMode
@@ -118,6 +145,13 @@ export function loadSettings(): AppSettings {
           ? parsed.chordId
           : DEFAULT_SETTINGS.chordId,
       volume: clampVolume(parsed.volume),
+      bpm: clampBpm(parsed.bpm),
+      strumPatternId:
+        typeof parsed.strumPatternId === 'string' &&
+        isKnownStrumPatternId(parsed.strumPatternId)
+          ? parsed.strumPatternId
+          : DEFAULT_SETTINGS.strumPatternId,
+      locale: normalizeLocale(parsed.locale),
     };
     return { ...base, ...sanitizeMusicSelectionIds(base) };
   } catch {

@@ -23,6 +23,7 @@ export interface DiatonicChordEntry {
 }
 
 export interface DiatonicChordPlayPayload {
+  degree: number;
   chordKeyId: string;
   chordId: string | null;
   playbackSemitones: readonly number[];

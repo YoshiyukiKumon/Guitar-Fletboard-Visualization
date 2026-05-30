@@ -70,8 +70,82 @@ body {
   color: #f5f0eb;
 }
 
+.app-header__tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+}
+
 .app-header__mode .segment-switcher__list {
   flex-wrap: nowrap;
+}
+
+.app-header__mode .segment-switcher__btn--icon {
+  min-width: 2.5rem;
+  padding: 0.45rem 0.55rem;
+}
+
+.segment-switcher__btn-icon {
+  display: block;
+}
+
+.language-switcher {
+  position: relative;
+}
+
+.language-switcher__toggle {
+  min-width: 2.75rem;
+  padding: 0.45rem 0.55rem;
+  border: 1px solid #4a3d32;
+  border-radius: 8px;
+  background: #2a2119;
+  color: #f5f0eb;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.language-switcher__toggle:hover {
+  background: #352a21;
+}
+
+.language-switcher__menu {
+  position: absolute;
+  top: calc(100% + 0.25rem);
+  right: 0;
+  z-index: 20;
+  min-width: 8rem;
+  margin: 0;
+  padding: 0.25rem;
+  list-style: none;
+  border: 1px solid #4a3d32;
+  border-radius: 8px;
+  background: #2a2119;
+  box-shadow: 0 8px 24px rgb(0 0 0 / 35%);
+}
+
+.language-switcher__option {
+  width: 100%;
+  padding: 0.45rem 0.65rem;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: #f5f0eb;
+  font-size: 0.85rem;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.language-switcher__option:hover {
+  background: #352a21;
+}
+
+.language-switcher__option--active {
+  background: #4a3d32;
 }
 
 .music-selectors {
@@ -666,12 +740,83 @@ body {
   gap: 0.75rem;
 }
 
+.tone-panel__top {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+}
+
 .tone-panel__summary {
   margin: 0;
-  grid-column: 1 / -1;
+  flex: 1 1 12rem;
   font-size: 1rem;
   font-weight: 600;
   color: #f5f0eb;
+}
+
+.tone-panel__bpm {
+  flex-shrink: 0;
+}
+
+.tone-panel__controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  flex-shrink: 0;
+}
+
+.tone-panel__strum-label {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.75rem;
+  color: #b8aea3;
+}
+
+.tone-panel__strum-select {
+  min-width: 7.5rem;
+  max-width: 12rem;
+  border: 1px solid #6a5a4a;
+  border-radius: 6px;
+  padding: 0.2rem 0.35rem;
+  font-size: 0.8rem;
+  font-family: inherit;
+  color: #f5f0eb;
+  background: #4a3220;
+}
+
+.tone-panel__strum-select:focus-visible {
+  outline: 2px solid #b8aea3;
+  outline-offset: 1px;
+}
+
+.tone-panel__bpm-label {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.75rem;
+  color: #b8aea3;
+}
+
+.tone-panel__bpm-input {
+  width: 4.25rem;
+  border: 1px solid #6a5a4a;
+  border-radius: 6px;
+  padding: 0.2rem 0.35rem;
+  font-size: 0.8rem;
+  font-family: inherit;
+  color: #f5f0eb;
+  background: #4a3220;
+  text-align: center;
+}
+
+.tone-panel__bpm-input:focus-visible {
+  outline: 2px solid #b8aea3;
+  outline-offset: 1px;
 }
 
 @media (min-width: 640px) {
@@ -733,6 +878,11 @@ body {
 .tone-panel__play:focus-visible {
   outline: 2px solid #b8aea3;
   outline-offset: 2px;
+}
+
+.tone-panel__play--active {
+  border-color: #b85450;
+  background: #6a3028;
 }
 
 .tone-panel__lines {
@@ -850,6 +1000,18 @@ body {
 .diatonic-chords__btn--play {
   min-width: 1.65rem;
   padding-inline: 0.35rem;
+  cursor: default;
+  pointer-events: none;
+}
+
+.diatonic-chords__btn--repeat {
+  min-width: 1.65rem;
+  padding-inline: 0.35rem;
+}
+
+.diatonic-chords__btn--repeat.diatonic-chords__btn--active {
+  border-color: #b85450;
+  background: #6a3028;
 }
 
 .diatonic-chords__btn:hover {
@@ -1025,7 +1187,37 @@ body {
 .library-view__playback {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 0.35rem 0.5rem;
+}
+
+.library-view__strum-preview {
+  margin-top: 0.15rem;
+}
+
+.library-view__preview-bpm {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.75rem;
+  color: #b8aea3;
+}
+
+.library-view__preview-bpm-input {
+  width: 4.25rem;
+  border: 1px solid #6a5a4a;
+  border-radius: 6px;
+  padding: 0.2rem 0.35rem;
+  font-size: 0.8rem;
+  font-family: inherit;
+  color: #f5f0eb;
+  background: #4a3220;
+  text-align: center;
+}
+
+.library-view__preview-bpm-input:focus-visible {
+  outline: 2px solid #b8aea3;
+  outline-offset: 1px;
 }
 
 .library-view__play {
@@ -1043,6 +1235,11 @@ body {
 .library-view__play:hover {
   border-color: #8a7058;
   background: #5c4033;
+}
+
+.library-view__play--active {
+  background: #7a4a38;
+  border-color: #c49a8a;
 }
 
 .library-view__play:focus-visible {
@@ -1072,6 +1269,17 @@ body {
   font-size: 0.85rem;
   color: #f5f0eb;
   background: #2a221c;
+}
+
+.library-view__input--wide {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.library-view__hint {
+  margin: -0.15rem 0 0.35rem;
+  font-size: 0.72rem;
+  color: #9a9088;
+  line-height: 1.4;
 }
 
 .library-view__textarea {
@@ -1224,14 +1432,35 @@ body {
   border: none;
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
+  gap: 0.15rem;
+}
+
+.settings-instrument-list__header,
+.settings-instrument-list__row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 3.25rem 3.25rem 2.25rem;
+  align-items: center;
+  gap: 0.35rem 0.5rem;
+}
+
+.settings-instrument-list__header {
+  padding: 0 0.25rem 0.35rem;
+  border-bottom: 1px solid #4a3d32;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #b8aea3;
+  text-align: center;
+}
+
+.settings-instrument-list__header-name {
+  text-align: left;
+}
+
+.settings-instrument-list__header-col {
+  line-height: 1.2;
 }
 
 .settings-instrument-list__row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
   padding: 0.35rem 0.25rem;
   border-radius: 6px;
 }
@@ -1248,6 +1477,20 @@ body {
   cursor: pointer;
   color: #f0e6dc;
   font-size: 0.92rem;
+}
+
+.settings-instrument-list__name {
+  min-width: 0;
+  color: #f0e6dc;
+  font-size: 0.92rem;
+  line-height: 1.35;
+}
+
+.settings-instrument-list__choice {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
 }
 
 .settings-instrument-list__radio {

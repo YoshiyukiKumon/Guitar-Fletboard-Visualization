@@ -14,7 +14,7 @@
 | モード | 内容 |
 |--------|------|
 | **練習** | 現行 UI（キー・スケール・コード選択、指板、構成音、再生） |
-| **ライブラリ** | スケール/コードの一覧・編集、CSV、初期リセット |
+| **ライブラリ** | スケール/コード/ストロークパターンの一覧・編集、CSV、初期リセット |
 
 ヘッダー右に `[ 練習 | ライブラリ ]` のセグメント切替。既定は **練習**。
 
@@ -36,6 +36,15 @@ interface ChordDef {
   name: string;
   tones: readonly string[];
 }
+
+interface StrumPatternDef {
+  id: string;
+  name: string;
+  /** 拍子（例: "4/4", "3/4", "12/8"） */
+  timeSignature: string;
+  /** 例: "4, 4(>), 4, 4(>)" / "4(>), 8, 8(>)-8, 8, 4"（`-` はタイ、`(>)` はアクセント、`r` は休符） */
+  notation: string;
+}
 ```
 
 ### 保存先
@@ -43,7 +52,7 @@ interface ChordDef {
 | キー | 内容 |
 |------|------|
 | `guitar-practice-settings` | 練習設定（既存）+ `appMode` |
-| `guitar-practice-custom-library` | `{ scales: ScaleDef[], chords: ChordDef[] }` |
+| `guitar-practice-custom-library` | `{ scales: ScaleDef[], chords: ChordDef[], strumPatterns: StrumPatternDef[] }` |
 
 組み込みデータはソースコード（`SCALES` / `CHORDS`）のまま。上書きしない。
 
@@ -61,7 +70,7 @@ interface ChordDef {
 ### レイアウト
 
 ```
-[ スケール ] [ コード ]     ← サブタブ
+[ スケール ] [ コード ] [ ストローク ]     ← サブタブ
 
 ┌ 一覧 ──────────┐ ┌ 編集 ─────────────┐
 │ ○ Major 組み込み│ │ 名前 [_______]    │
@@ -75,6 +84,8 @@ interface ChordDef {
 [ 初期状態にリセット ]
 ```
 
+- **ストロークタブ**: 名前 + 拍子 + パターン（カンマ区切り、`-` はタイ、`(>)` はアクセント、`r` は休符）。組み込み 5 種（4/4×3、3/4、12/8）。
+- アクセント `(>)` のストロークは現行 peak と同等、非アクセントは相対的に弱く再生（リピート時のみ）
 - **組み込み**: 一覧に「組み込み」バッジ。編集フォームは読み取り専用。「複製してカスタム追加」可。
 - **カスタム**: 追加・編集・削除可。
 - モバイル: 一覧と編集を縦積み。
@@ -101,7 +112,7 @@ interface ChordDef {
 
 ### 初期状態にリセット
 
-- カスタム定義をすべて削除
+- カスタム定義をすべて削除（スケール・コード・ストロークパターン）
 - 確認ダイアログ（2 段階推奨: 確認 → 実行）
 - 練習設定の `scaleId` / `chordId` が無効になった場合は MVP（C Major / C△7）へフォールバック
 
@@ -140,6 +151,9 @@ chord,my-m7,My m7,"R|m3 / #9|5|b7"
 ## 練習モードとの連携
 
 - ライブラリで削除した ID を練習中に参照している場合、次回描画時に MVP へフォールバック
+- 削除したストロークパターン ID を選択中だった場合は組み込み「4分音符」へフォールバック
+- 構成音パネル右上: BPM の左に **リズム** プルダウン（ストロークパターン選択）。∞ リピート再生のストローク位置に使用
+- 設定 `strumPatternId` は `guitar-practice-settings` に永続化
 - ヘッダーのモード切替のみ練習画面に追加（既存コントロールは変更しない）
 
 ## 実装ファイル（参照）
@@ -149,8 +163,10 @@ chord,my-m7,My m7,"R|m3 / #9|5|b7"
 | 永続化 | `src/domain/music-library/storage.ts` |
 | 一覧・検索 | `src/domain/music-library/registry.ts` |
 | CSV | `src/domain/music-library/csv.ts` |
-| 検証 | `src/domain/music-library/validate.ts` |
+| 検証 | `src/domain/music-library/validate.ts` / `src/domain/strum-pattern/` |
 | ライブラリ UI | `src/ui/library-view.ts` |
+| リズム選択 UI | `src/ui/tone-panel-view.ts` |
+| リピート再生 | `src/audio/tone-player.ts` |
 | モード切替 | `src/ui/app-shell.ts` |
 
 ## 変更履歴
@@ -161,3 +177,7 @@ chord,my-m7,My m7,"R|m3 / #9|5|b7"
 | 1.1 | 2026-05-20 | ID は UI 非表示・自動発行。構成音はプルダウン選択 |
 | 1.2 | 2026-05-20 | 編集フォームにプレビュー再生（▶ 再生 / ▶ 同時 / ▶ アルペジオ、C ルート） |
 | 1.3 | 2026-05-20 | 一覧選択時にリストのスクロール位置を維持 |
+| 1.4 | 2026-05-20 | ストロークパターン（組み込み 3 種 + カスタム登録、練習モードのリズム選択） |
+| 1.5 | 2026-05-20 | ストロークパターンに `(>)` アクセント表記とリピート強弱 |
+| 1.6 | 2026-05-20 | 拍子（4/4, 3/4, 12/8 等）と休符 `r`、組み込み 3/4・シャッフル追加 |
+| 1.7 | 2026-05-20 | ストローク編集プレビュー（BPM・ループ再生）、既定 BPM 90・既定パターン シンコペーション |

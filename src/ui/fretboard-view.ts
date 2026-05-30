@@ -14,6 +14,7 @@ import {
   resolveCapsuleStyle,
   type CapsuleStyleKind,
 } from '../domain/fretboard-view-mode';
+import { t } from '../i18n';
 
 export function renderFretboard(
   model: FretboardModel,
@@ -24,7 +25,7 @@ export function renderFretboard(
   board.className = 'fretboard';
   board.id = 'fretboard-panel';
   board.setAttribute('role', 'tabpanel');
-  board.setAttribute('aria-label', 'ギター指板');
+  board.setAttribute('aria-label', t('fretboard.ariaLabel'));
 
   const scroll = document.createElement('div');
   scroll.className = 'fretboard__scroll';
@@ -274,7 +275,11 @@ function attachFretTapTarget(
       : cell.noteName;
   tapTarget.setAttribute(
     'aria-label',
-    `${pitchForAria}（${STRING_LABEL_FOR_ARIA(cell.stringIndex)}弦 ${cell.fret} フレット）を再生`,
+    t('fretboard.tapAria', {
+      pitch: pitchForAria,
+      string: STRING_LABEL_FOR_ARIA(cell.stringIndex),
+      fret: cell.fret,
+    }),
   );
 
   tapTarget.addEventListener('click', (event) => {

@@ -1,15 +1,18 @@
+import { diatonicRepeatButtonId, tonePlayer, type PlaybackButtonId } from '../audio/tone-player';
 import {
   computeDiatonicChords,
   type DiatonicChordEntry,
   type DiatonicChordPlayPayload,
 } from '../domain/diatonic-chords';
 import type { FretboardModel } from '../domain/fretboard';
+import { t } from '../i18n';
 
 export interface DiatonicChordsPanelOptions {
   chordKeyId: string;
   chordId: string;
   onApply: (chordKeyId: string, chordId: string) => void;
   onPlay: (payload: DiatonicChordPlayPayload) => void;
+  onRepeatPlay: (payload: DiatonicChordPlayPayload) => void;
 }
 
 export function createDiatonicChordsPanel(
@@ -18,11 +21,11 @@ export function createDiatonicChordsPanel(
 ): HTMLElement {
   const section = document.createElement('section');
   section.className = 'diatonic-chords';
-  section.setAttribute('aria-label', 'ダイアトニックコード');
+  section.setAttribute('aria-label', t('diatonic.ariaLabel'));
 
   const title = document.createElement('h2');
   title.className = 'diatonic-chords__title';
-  title.textContent = 'ダイアトニックコード';
+  title.textContent = t('diatonic.title');
   section.appendChild(title);
 
   const result = computeDiatonicChords(model.scaleKey, model.scale);
@@ -30,8 +33,7 @@ export function createDiatonicChordsPanel(
   if (!result.supported) {
     const message = document.createElement('p');
     message.className = 'diatonic-chords__message';
-    message.textContent =
-      'このスケールではダイアトニックコード（四和音）を表示できません。';
+    message.textContent = t('diatonic.unsupported');
     section.appendChild(message);
     return section;
   }
@@ -43,9 +45,33 @@ export function createDiatonicChordsPanel(
   grid.className = 'diatonic-chords__grid';
   grid.style.setProperty('--diatonic-cols', String(result.entries.length));
 
+  const repeatButtons: HTMLButtonElement[] = [];
+
   for (const entry of result.entries) {
-    grid.appendChild(createCell(entry, options));
+    const { cell, repeatBtn } = createCell(entry, options);
+    repeatButtons.push(repeatBtn);
+    grid.appendChild(cell);
   }
+
+  const syncRepeatButtons = (): void => {
+    for (const btn of repeatButtons) {
+      const buttonId = btn.dataset.playbackButtonId as PlaybackButtonId | undefined;
+      const isActive =
+        buttonId !== undefined && tonePlayer.isPlaybackActive(buttonId);
+      const chordName = btn.dataset.chordName ?? t('diatonic.title');
+      btn.textContent = isActive ? '■' : '∞';
+      btn.setAttribute(
+        'aria-label',
+        isActive
+          ? t('diatonic.aria.repeatStop')
+          : t('diatonic.aria.repeat', { name: chordName }),
+      );
+      btn.classList.toggle('diatonic-chords__btn--active', isActive);
+    }
+  };
+
+  tonePlayer.subscribePlayback(syncRepeatButtons);
+  syncRepeatButtons();
 
   scroll.appendChild(grid);
   section.appendChild(scroll);
@@ -55,10 +81,11 @@ export function createDiatonicChordsPanel(
 function createCell(
   entry: DiatonicChordEntry,
   options: DiatonicChordsPanelOptions,
-): HTMLElement {
+): { cell: HTMLElement; repeatBtn: HTMLButtonElement } {
   const cell = document.createElement('div');
   cell.className = 'diatonic-chords__cell';
   const selectable = entry.chordId !== null;
+  const canPlay = entry.playbackSemitones.length > 0;
   if (!selectable) {
     cell.classList.add('diatonic-chords__cell--unmapped');
   }
@@ -92,16 +119,46 @@ function createCell(
   playIcon.textContent = '▶';
   playIcon.setAttribute('aria-hidden', 'true');
 
+  const repeatBtn = document.createElement('button');
+  repeatBtn.type = 'button';
+  repeatBtn.className = 'diatonic-chords__btn diatonic-chords__btn--repeat';
+  repeatBtn.textContent = '∞';
+  repeatBtn.disabled = !canPlay;
+  repeatBtn.dataset.chordName = entry.displayName;
+  repeatBtn.dataset.playbackButtonId = diatonicRepeatButtonId(entry.degree);
+  repeatBtn.setAttribute(
+    'aria-label',
+    canPlay
+      ? t('diatonic.aria.repeat', { name: entry.displayName })
+      : t('diatonic.aria.repeatDisabled', { name: entry.displayName }),
+  );
+  if (canPlay) {
+    const repeatButtonId = diatonicRepeatButtonId(entry.degree);
+    repeatBtn.addEventListener('click', (event) => {
+      event.stopPropagation();
+      if (tonePlayer.isPlaybackActive(repeatButtonId)) {
+        tonePlayer.stopRepeat();
+        return;
+      }
+      options.onRepeatPlay({
+        degree: entry.degree,
+        chordKeyId: entry.chordKeyId,
+        chordId: entry.chordId,
+        playbackSemitones: entry.playbackSemitones,
+      });
+    });
+  }
+
   const applyBtn = document.createElement('button');
   applyBtn.type = 'button';
   applyBtn.className = 'diatonic-chords__btn diatonic-chords__btn--apply';
-  applyBtn.textContent = '選択';
+  applyBtn.textContent = t('diatonic.apply');
   applyBtn.disabled = !selectable;
   applyBtn.setAttribute(
     'aria-label',
     selectable
-      ? `${entry.displayName} をコードルート・コードに反映`
-      : `${entry.displayName} は選択未対応`,
+      ? t('diatonic.aria.apply', { name: entry.displayName })
+      : t('diatonic.aria.applyDisabled', { name: entry.displayName }),
   );
   if (selectable && entry.chordId !== null) {
     applyBtn.addEventListener('click', (event) => {
@@ -111,39 +168,50 @@ function createCell(
   }
 
   actions.appendChild(playIcon);
+  actions.appendChild(repeatBtn);
   actions.appendChild(applyBtn);
 
-  cell.classList.add('diatonic-chords__cell--playable');
-  cell.setAttribute('role', 'button');
-  cell.setAttribute('tabindex', '0');
-  cell.setAttribute('aria-label', `${entry.displayName} を同時再生`);
-  cell.addEventListener('click', (event) => {
-    if ((event.target as HTMLElement).closest('.diatonic-chords__btn--apply')) {
-      return;
-    }
-    options.onPlay({
-      chordKeyId: entry.chordKeyId,
-      chordId: entry.chordId,
-      playbackSemitones: entry.playbackSemitones,
+  if (canPlay) {
+    cell.classList.add('diatonic-chords__cell--playable');
+    cell.setAttribute('role', 'button');
+    cell.setAttribute('tabindex', '0');
+    cell.setAttribute(
+      'aria-label',
+      t('diatonic.aria.play', { name: entry.displayName }),
+    );
+    cell.addEventListener('click', (event) => {
+      if (
+        (event.target as HTMLElement).closest('.diatonic-chords__btn--apply')
+      ) {
+        return;
+      }
+      if (
+        (event.target as HTMLElement).closest('.diatonic-chords__btn--repeat')
+      ) {
+        return;
+      }
+      options.onPlay({
+        degree: entry.degree,
+        chordKeyId: entry.chordKeyId,
+        chordId: entry.chordId,
+        playbackSemitones: entry.playbackSemitones,
+      });
     });
-  });
-  cell.addEventListener('keydown', (event) => {
-    if (event.key !== 'Enter' && event.key !== ' ') {
-      return;
-    }
-    if ((event.target as HTMLElement).closest('.diatonic-chords__btn--apply')) {
-      return;
-    }
-    event.preventDefault();
-    options.onPlay({
-      chordKeyId: entry.chordKeyId,
-      chordId: entry.chordId,
-      playbackSemitones: entry.playbackSemitones,
+    cell.addEventListener('keydown', (event) => {
+      if (event.key !== 'Enter' && event.key !== ' ') {
+        return;
+      }
+      event.preventDefault();
+      options.onPlay({
+        degree: entry.degree,
+        chordKeyId: entry.chordKeyId,
+        chordId: entry.chordId,
+        playbackSemitones: entry.playbackSemitones,
+      });
     });
-  });
+  }
 
   cell.appendChild(labels);
   cell.appendChild(actions);
-
-  return cell;
+  return { cell, repeatBtn };
 }

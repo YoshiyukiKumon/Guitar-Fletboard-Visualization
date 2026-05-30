@@ -6,6 +6,7 @@ import {
   listChords,
   listScales,
 } from '../domain/music-library/registry';
+import { t } from '../i18n';
 
 export interface MusicSelectorValues {
   scaleKeyId: string;
@@ -38,14 +39,14 @@ export function createMusicSelectors(
 
   const section = document.createElement('section');
   section.className = 'music-selectors';
-  section.setAttribute('aria-label', 'キー・スケール・コード');
+  section.setAttribute('aria-label', t('selectors.ariaLabel'));
 
   const scaleRow = document.createElement('div');
   scaleRow.className = 'music-selectors__row';
   scaleRow.appendChild(
     createSelectField({
       id: 'scale-key-select',
-      label: 'スケールルート',
+      label: t('selectors.scaleRoot'),
       items: KEYS,
       value: values.scaleKeyId,
       onChange: callbacks.onScaleKeyChange,
@@ -54,7 +55,7 @@ export function createMusicSelectors(
   scaleRow.appendChild(
     createSelectField({
       id: 'scale-select',
-      label: 'スケール',
+      label: t('selectors.scale'),
       items: scaleOptions,
       value: values.scaleId,
       onChange: callbacks.onScaleChange,
@@ -67,7 +68,7 @@ export function createMusicSelectors(
   chordRow.appendChild(
     createSelectField({
       id: 'chord-key-select',
-      label: 'コードルート',
+      label: t('selectors.chordRoot'),
       items: chordRootOptions,
       value: values.chordKeyId,
       onChange: callbacks.onChordKeyChange,
@@ -76,7 +77,7 @@ export function createMusicSelectors(
   chordRow.appendChild(
     createSelectField({
       id: 'chord-select',
-      label: 'コード',
+      label: t('selectors.chord'),
       items: chordOptions,
       value: values.chordId,
       onChange: callbacks.onChordChange,

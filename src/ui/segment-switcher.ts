@@ -3,6 +3,8 @@ export function createSegmentSwitcher<T extends string>(config: {
   ariaLabel: string;
   modes: readonly T[];
   labels: Record<T, string>;
+  /** アイコン表示（SVG 等）。指定時は labels を aria-label に使用 */
+  icons?: Record<T, string>;
   /** ボタン表示より詳しい説明（アクセシビリティ用） */
   buttonAriaLabels?: Partial<Record<T, string>>;
   active: T;
@@ -20,12 +22,21 @@ export function createSegmentSwitcher<T extends string>(config: {
     const btn = document.createElement('button');
     btn.type = 'button';
     btn.className = 'segment-switcher__btn';
+    btn.dataset.mode = mode;
     btn.setAttribute('role', 'tab');
     btn.setAttribute('aria-selected', mode === config.active ? 'true' : 'false');
-    btn.textContent = config.labels[mode];
-    const buttonAria = config.buttonAriaLabels?.[mode];
-    if (buttonAria !== undefined) {
-      btn.setAttribute('aria-label', buttonAria);
+    const iconHtml = config.icons?.[mode];
+    const buttonLabel = config.labels[mode];
+    if (iconHtml !== undefined) {
+      btn.innerHTML = iconHtml;
+      btn.classList.add('segment-switcher__btn--icon');
+      btn.setAttribute('aria-label', buttonLabel);
+    } else {
+      btn.textContent = buttonLabel;
+      const buttonAria = config.buttonAriaLabels?.[mode];
+      if (buttonAria !== undefined) {
+        btn.setAttribute('aria-label', buttonAria);
+      }
     }
     if (mode === config.active) {
       btn.classList.add('segment-switcher__btn--active');

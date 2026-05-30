@@ -3,22 +3,21 @@ import { resolveMusicSelection } from '../domain/resolve-music-selection';
 import {
   FRETBOARD_VIEW_MODES,
   type FretboardViewMode,
-  VIEW_MODE_LABELS,
 } from '../domain/fretboard-view-mode';
 import {
   LABEL_DISPLAY_MODES,
   type LabelDisplayMode,
-  LABEL_MODE_LABELS,
 } from '../domain/label-display-mode';
 import type { AppMode, AppSettings } from '../app/storage';
-import { tonePlayer } from '../audio/tone-player';
-import type { FretboardModel } from '../domain/fretboard';
 import {
-  formatChordName,
-  formatScaleChordSummary,
-  formatScaleName,
-  noteNamesFromTones,
-} from '../domain/tone-sequence';
+  getAppModeLabels,
+  getLabelModeLabels,
+  getViewModeLabels,
+  t,
+} from '../i18n';
+import { APP_MODE_ICONS } from '../i18n/nav-icons';
+import type { AppLocale } from '../i18n/locale';
+import { createTonePanel } from './tone-panel-view';
 import {
   createLibraryView,
   type LibraryViewCallbacks,
@@ -35,16 +34,13 @@ import {
   createSettingsView,
   type SettingsViewCallbacks,
 } from './settings-view';
+import { createLanguageSwitcher } from './language-switcher';
 
 const APP_MODES: AppMode[] = ['practice', 'library', 'settings'];
-const APP_MODE_LABELS: Record<AppMode, string> = {
-  practice: '練習',
-  library: 'ライブラリ',
-  settings: '設定',
-};
 
 export interface AppRenderOptions {
   onAppModeChange: (mode: AppMode) => void;
+  onLocaleChange: (locale: AppLocale) => void;
   onViewModeChange: (mode: FretboardViewMode) => void;
   onLabelModeChange: (mode: LabelDisplayMode) => void;
   onScaleKeyChange: (keyId: string) => void;
@@ -53,8 +49,12 @@ export interface AppRenderOptions {
   onChordChange: (chordId: string) => void;
   onDiatonicChordApply: (chordKeyId: string, chordId: string) => void;
   onDiatonicChordPlay: (payload: DiatonicChordPlayPayload) => void;
+  onDiatonicChordRepeatPlay: (payload: DiatonicChordPlayPayload) => void;
   onVolumeChange: (volume: number) => void;
-  onInstrumentChange: (instrumentId: InstrumentId) => void;
+  onBpmChange: (bpm: number) => void;
+  onStrumPatternChange: (strumPatternId: string) => void;
+  onPlaybackInstrumentChange: (instrumentId: InstrumentId) => void;
+  onRepeatInstrumentChange: (instrumentId: InstrumentId) => void;
   libraryState: LibraryViewState;
   onLibraryStateChange: (state: LibraryViewState) => void;
   onLibraryChanged: () => void;
@@ -79,18 +79,26 @@ export function renderApp(
   header.className = 'app-header';
   const title = document.createElement('h1');
   title.className = 'app-header__title';
-  title.textContent = 'ギター練習ツール';
+  title.textContent = t('app.title');
   header.appendChild(title);
-  header.appendChild(
+
+  const headerTools = document.createElement('div');
+  headerTools.className = 'app-header__tools';
+  headerTools.appendChild(
     createSegmentSwitcher({
       className: 'segment-switcher app-header__mode',
-      ariaLabel: 'アプリモード',
+      ariaLabel: t('nav.ariaAppMode'),
       modes: APP_MODES,
-      labels: APP_MODE_LABELS,
+      labels: getAppModeLabels(),
+      icons: APP_MODE_ICONS,
       active: settings.appMode,
       onChange: options.onAppModeChange,
     }),
   );
+  headerTools.appendChild(
+    createLanguageSwitcher(settings.locale, options.onLocaleChange),
+  );
+  header.appendChild(headerTools);
   root.appendChild(header);
 
   if (settings.appMode === 'library') {
@@ -104,7 +112,8 @@ export function renderApp(
 
   if (settings.appMode === 'settings') {
     const settingsCallbacks: SettingsViewCallbacks = {
-      onInstrumentChange: options.onInstrumentChange,
+      onPlaybackInstrumentChange: options.onPlaybackInstrumentChange,
+      onRepeatInstrumentChange: options.onRepeatInstrumentChange,
       onVolumeChange: options.onVolumeChange,
     };
     root.appendChild(createSettingsView(settings, settingsCallbacks));
@@ -148,155 +157,23 @@ export function renderApp(
   root.appendChild(createLegend(settings.viewMode));
   root.appendChild(renderFretboard(model, settings.viewMode, settings.labelMode));
 
-  root.appendChild(createTonePanel(model));
+  root.appendChild(
+    createTonePanel(model, {
+      bpm: settings.bpm,
+      strumPatternId: settings.strumPatternId,
+      onBpmChange: options.onBpmChange,
+      onStrumPatternChange: options.onStrumPatternChange,
+    }),
+  );
   root.appendChild(
     createDiatonicChordsPanel(model, {
       chordKeyId: settings.chordKeyId,
       chordId: settings.chordId,
       onApply: options.onDiatonicChordApply,
       onPlay: options.onDiatonicChordPlay,
+      onRepeatPlay: options.onDiatonicChordRepeatPlay,
     }),
   );
-}
-
-function createTonePanel(model: FretboardModel): HTMLElement {
-  const tones = document.createElement('aside');
-  tones.className = 'tone-panel';
-
-  const summary = document.createElement('p');
-  summary.className = 'tone-panel__summary';
-  summary.textContent = formatScaleChordSummary(
-    model.scaleKey,
-    model.scale,
-    model.chordKey,
-    model.chord,
-  );
-  tones.appendChild(summary);
-
-  const scaleBlock = document.createElement('div');
-  scaleBlock.className = 'tone-panel__block';
-  scaleBlock.appendChild(
-    createToneBlockHeader(
-      formatScaleName(model.scaleKey, model.scale),
-      'スケールを順番に再生（1オクターブ）',
-      () => tonePlayer.playScale(model.scaleKey, model.scale),
-    ),
-  );
-  scaleBlock.appendChild(
-    createToneLines(
-      model.scale.tones.join(' · '),
-      noteNamesFromTones(model.scaleKey, model.scale.tones, model.scaleKey),
-    ),
-  );
-  tones.appendChild(scaleBlock);
-
-  const chordBlock = document.createElement('div');
-  chordBlock.className = 'tone-panel__block';
-  chordBlock.appendChild(
-    createChordToneBlockHeader(
-      formatChordName(model.chordKey, model.chord, model.scaleKey),
-      () => tonePlayer.playChord(model.chordKey, model.chord),
-      () => tonePlayer.playChordArpeggio(model.chordKey, model.chord),
-    ),
-  );
-  chordBlock.appendChild(
-    createToneLines(
-      model.chord.tones.join(' · '),
-      noteNamesFromTones(model.chordKey, model.chord.tones, model.scaleKey),
-    ),
-  );
-  tones.appendChild(chordBlock);
-
-  return tones;
-}
-
-function createToneLines(
-  intervalLine: string,
-  noteNameLine: string,
-): HTMLElement {
-  const wrap = document.createElement('div');
-  wrap.className = 'tone-panel__lines';
-
-  const intervals = document.createElement('p');
-  intervals.className = 'tone-panel__tones';
-  intervals.textContent = intervalLine;
-
-  const noteNames = document.createElement('p');
-  noteNames.className = 'tone-panel__note-names';
-  noteNames.textContent = noteNameLine;
-
-  wrap.appendChild(intervals);
-  wrap.appendChild(noteNames);
-  return wrap;
-}
-
-function createChordToneBlockHeader(
-  title: string,
-  onBlockPlay: () => void,
-  onArpeggioPlay: () => void,
-): HTMLElement {
-  const head = document.createElement('div');
-  head.className = 'tone-panel__head tone-panel__head--chord';
-
-  const heading = document.createElement('h2');
-  heading.className = 'tone-panel__heading';
-  heading.textContent = title;
-
-  const actions = document.createElement('div');
-  actions.className = 'tone-panel__head-actions';
-  actions.appendChild(
-    createTonePlayButton(
-      '▶ 同時',
-      'コードトーンを同時に再生',
-      onBlockPlay,
-    ),
-  );
-  actions.appendChild(
-    createTonePlayButton(
-      '▶ アルペジオ',
-      'コードトーンをルートから順に再生（アルペジオ）',
-      onArpeggioPlay,
-    ),
-  );
-
-  head.appendChild(heading);
-  head.appendChild(actions);
-  return head;
-}
-
-function createTonePlayButton(
-  label: string,
-  ariaLabel: string,
-  onPlay: () => void,
-): HTMLButtonElement {
-  const playBtn = document.createElement('button');
-  playBtn.type = 'button';
-  playBtn.className = 'tone-panel__play';
-  playBtn.setAttribute('aria-label', ariaLabel);
-  playBtn.textContent = label;
-  playBtn.addEventListener('click', () => {
-    void onPlay();
-  });
-  return playBtn;
-}
-
-function createToneBlockHeader(
-  title: string,
-  playLabel: string,
-  onPlay: () => void,
-): HTMLElement {
-  const head = document.createElement('div');
-  head.className = 'tone-panel__head';
-
-  const heading = document.createElement('h2');
-  heading.className = 'tone-panel__heading';
-  heading.textContent = title;
-
-  head.appendChild(heading);
-  head.appendChild(
-    createTonePlayButton('▶ 再生', playLabel, onPlay),
-  );
-  return head;
 }
 
 function createViewSwitcher(
@@ -305,16 +182,16 @@ function createViewSwitcher(
 ): HTMLElement {
   const nav = createSegmentSwitcher({
     className: 'segment-switcher view-switcher',
-    ariaLabel: '指板表示モード',
+    ariaLabel: t('view.ariaLabel'),
     modes: FRETBOARD_VIEW_MODES,
-    labels: VIEW_MODE_LABELS,
+    labels: getViewModeLabels(),
     active: activeMode,
     onChange,
   });
 
   const title = document.createElement('span');
   title.className = 'view-switcher__title';
-  title.textContent = '表示';
+  title.textContent = t('view.title');
   nav.prepend(title);
   return nav;
 }
@@ -325,17 +202,17 @@ function createLabelModeSwitcher(
 ): HTMLElement {
   const nav = createSegmentSwitcher({
     className: 'segment-switcher label-switcher',
-    ariaLabel: '指板の表示',
+    ariaLabel: t('label.ariaLabel'),
     modes: LABEL_DISPLAY_MODES,
-    labels: LABEL_MODE_LABELS,
-    buttonAriaLabels: { kana: '音名(カナ)' },
+    labels: getLabelModeLabels(),
+    buttonAriaLabels: { kana: t('label.kanaAria') },
     active: activeMode,
     onChange,
   });
 
   const title = document.createElement('span');
   title.className = 'label-switcher__title';
-  title.textContent = '指板';
+  title.textContent = t('label.title');
   nav.prepend(title);
 
   for (const btn of nav.querySelectorAll('.segment-switcher__btn')) {
@@ -359,7 +236,7 @@ function createLegend(viewMode: FretboardViewMode): HTMLElement {
     const scaleItem = document.createElement('span');
     scaleItem.className = 'legend__item';
     const scaleLabel =
-      viewMode === 'fretboard' ? 'ルート以外' : 'スケール音';
+      viewMode === 'fretboard' ? t('legend.scaleOther') : t('legend.scaleTone');
     scaleItem.innerHTML = `<span class="legend__capsule legend__capsule--scale">2 / 9</span>${scaleLabel}`;
     legend.appendChild(scaleItem);
   }
@@ -367,8 +244,7 @@ function createLegend(viewMode: FretboardViewMode): HTMLElement {
   if (viewMode === 'chord' || viewMode === 'composite') {
     const chordItem = document.createElement('span');
     chordItem.className = 'legend__item';
-    chordItem.innerHTML =
-      '<span class="legend__capsule legend__capsule--chord">3</span>コードトーン';
+    chordItem.innerHTML = `<span class="legend__capsule legend__capsule--chord">3</span>${t('legend.chordTone')}`;
     legend.appendChild(chordItem);
   }
 
@@ -379,24 +255,21 @@ function createLegend(viewMode: FretboardViewMode): HTMLElement {
   ) {
     const scaleRootItem = document.createElement('span');
     scaleRootItem.className = 'legend__item';
-    scaleRootItem.innerHTML =
-      '<span class="legend__capsule legend__capsule--scale-root">R</span>スケールルート';
+    scaleRootItem.innerHTML = `<span class="legend__capsule legend__capsule--scale-root">R</span>${t('legend.scaleRoot')}`;
     legend.appendChild(scaleRootItem);
   }
 
   if (viewMode === 'chord' || viewMode === 'composite') {
     const chordRootItem = document.createElement('span');
     chordRootItem.className = 'legend__item';
-    chordRootItem.innerHTML =
-      '<span class="legend__capsule legend__capsule--chord-root">R</span>コードルート';
+    chordRootItem.innerHTML = `<span class="legend__capsule legend__capsule--chord-root">R</span>${t('legend.chordRoot')}`;
     legend.appendChild(chordRootItem);
   }
 
   if (viewMode !== 'fretboard') {
     const mutedItem = document.createElement('span');
     mutedItem.className = 'legend__item';
-    mutedItem.innerHTML =
-      '<span class="legend__capsule legend__capsule--muted" aria-hidden="true">—</span>その他';
+    mutedItem.innerHTML = `<span class="legend__capsule legend__capsule--muted" aria-hidden="true">—</span>${t('legend.other')}`;
     legend.appendChild(mutedItem);
   }
 

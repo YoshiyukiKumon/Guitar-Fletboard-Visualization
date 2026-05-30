@@ -1,3 +1,5 @@
+import { t } from '../i18n';
+
 export function createVolumeControl(
   volume: number,
   onChange: (volume: number) => void,
@@ -19,11 +21,11 @@ export function createVolumeControl(
   slider.max = '100';
   slider.step = '1';
   slider.value = String(volume);
-  slider.setAttribute('aria-label', '音量');
+  slider.setAttribute('aria-label', t('volume.ariaLabel'));
 
   const syncSliderAria = (value: number): void => {
     slider.setAttribute('aria-valuenow', String(value));
-    slider.setAttribute('aria-valuetext', `音量 ${value}`);
+    slider.setAttribute('aria-valuetext', t('volume.ariaValue', { value }));
   };
   syncSliderAria(volume);
 

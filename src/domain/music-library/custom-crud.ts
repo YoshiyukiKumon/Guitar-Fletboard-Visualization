@@ -1,17 +1,26 @@
 import type { ChordDef } from '../data/chords';
 import type { ScaleDef } from '../data/scales';
-import { getChordById, getScaleById, getChordSource, getScaleSource } from './registry';
+import type { StrumPatternDef } from '../strum-pattern/strum-pattern';
+import {
+  getChordById,
+  getScaleById,
+  getStrumPatternById,
+  getChordSource,
+  getScaleSource,
+  getStrumPatternSource,
+} from './registry';
 import {
   loadCustomLibrary,
   resetCustomLibrary,
   saveCustomLibrary,
 } from './storage';
-import { generateCustomChordId, generateCustomScaleId } from './generate-id';
+import { generateCustomChordId, generateCustomScaleId, generateCustomStrumPatternId } from './generate-id';
 import {
   validateChordDef,
   validateScaleDef,
   type ValidationResult,
 } from './validate';
+import { validateStrumPatternDef } from '../strum-pattern/validate';
 
 function resolveScaleId(def: ScaleDef): ScaleDef {
   const id = def.id.trim() ? def.id.trim() : generateCustomScaleId(def.name);
@@ -21,6 +30,18 @@ function resolveScaleId(def: ScaleDef): ScaleDef {
 function resolveChordId(def: ChordDef): ChordDef {
   const id = def.id.trim() ? def.id.trim() : generateCustomChordId(def.name);
   return { ...def, id, tones: [...def.tones] };
+}
+
+function resolveStrumPatternId(def: StrumPatternDef): StrumPatternDef {
+  const id = def.id.trim()
+    ? def.id.trim()
+    : generateCustomStrumPatternId(def.name);
+  return {
+    ...def,
+    id,
+    timeSignature: def.timeSignature?.trim() || '4/4',
+    notation: def.notation.trim(),
+  };
 }
 
 export function upsertCustomScale(def: ScaleDef): ValidationResult {
@@ -69,6 +90,31 @@ export function deleteCustomChord(id: string): void {
   saveCustomLibrary(library);
 }
 
+export function upsertCustomStrumPattern(def: StrumPatternDef): ValidationResult {
+  const toSave = resolveStrumPatternId(def);
+  const result = validateStrumPatternDef(toSave);
+  if (!result.ok) {
+    return result;
+  }
+  const library = loadCustomLibrary();
+  const index = library.strumPatterns.findIndex((pattern) => pattern.id === toSave.id);
+  if (index >= 0) {
+    library.strumPatterns[index] = toSave;
+  } else {
+    library.strumPatterns.push(toSave);
+  }
+  saveCustomLibrary(library);
+  return { ok: true, errors: [], id: toSave.id };
+}
+
+export function deleteCustomStrumPattern(id: string): void {
+  const library = loadCustomLibrary();
+  library.strumPatterns = library.strumPatterns.filter(
+    (pattern) => pattern.id !== id,
+  );
+  saveCustomLibrary(library);
+}
+
 export function duplicateScaleAsCustom(builtinId: string): ScaleDef | undefined {
   const source = getScaleById(builtinId);
   if (!source || getScaleSource(builtinId) !== 'builtin') {
@@ -90,6 +136,21 @@ export function duplicateChordAsCustom(builtinId: string): ChordDef | undefined 
     id: '',
     name: `${source.name} (コピー)`,
     tones: [...source.tones],
+  };
+}
+
+export function duplicateStrumPatternAsCustom(
+  builtinId: string,
+): StrumPatternDef | undefined {
+  const source = getStrumPatternById(builtinId);
+  if (!source || getStrumPatternSource(builtinId) !== 'builtin') {
+    return undefined;
+  }
+  return {
+    id: '',
+    name: `${source.name} (コピー)`,
+    timeSignature: source.timeSignature,
+    notation: source.notation,
   };
 }
 

@@ -39,7 +39,11 @@ async function runChecks(page) {
   assert((await noteNameLines.first().textContent())?.includes('C'), 'scale note names expected');
 
   const playButtons = page.locator('.tone-panel__play');
-  assert((await playButtons.count()) === 3, 'expected scale + chord block + arpeggio buttons');
+  assert((await playButtons.count()) === 4, 'expected scale + chord block + arpeggio + repeat buttons');
+  assert(
+    (await playButtons.nth(0).textContent()) === '▶ 再生',
+    'scale play button label',
+  );
   assert(
     (await playButtons.nth(1).textContent()) === '▶ 同時',
     'chord block play button label',
@@ -47,6 +51,43 @@ async function runChecks(page) {
   assert(
     (await playButtons.nth(2).textContent()) === '▶ アルペジオ',
     'chord arpeggio play button label',
+  );
+  assert(
+    (await playButtons.nth(3).textContent()) === '∞ リピート',
+    'chord repeat play button label',
+  );
+
+  const bpmInput = page.locator('.tone-panel__bpm-input');
+  assert((await bpmInput.count()) === 1, 'BPM input missing');
+  assert((await bpmInput.inputValue()) === '90', 'default BPM should be 90');
+
+  const strumSelect = page.locator('.tone-panel__strum-select');
+  assert((await strumSelect.count()) === 1, 'strum pattern select missing');
+  assert(
+    (await strumSelect.inputValue()) === 'builtin-strum-syncopation',
+    'default strum pattern should be syncopation',
+  );
+  const strumOptions = await strumSelect.locator('option').allTextContents();
+  assert(strumOptions.some((label) => label.includes('Quarter notes')), 'builtin quarter strum pattern missing');
+  assert(strumOptions.some((label) => label.includes('Eighth notes')), 'builtin eighth strum pattern missing');
+  assert(
+    strumOptions.some((label) => label.includes('Syncopation')),
+    'builtin syncopation strum pattern missing',
+  );
+  assert(strumOptions.some((label) => label.includes('3/4 time')), 'builtin 3/4 strum pattern missing');
+  assert(strumOptions.some((label) => label.includes('Shuffle')), 'builtin shuffle strum pattern missing');
+
+  await playButtons.nth(0).click();
+  await page.waitForTimeout(80);
+  assert(
+    (await playButtons.nth(0).textContent()) === '■ 停止',
+    'scale button should become stop while playing',
+  );
+  await playButtons.nth(0).click();
+  await page.waitForTimeout(80);
+  assert(
+    (await playButtons.nth(0).textContent()) === '▶ 再生',
+    'scale button should return to play after stop',
   );
 
   const scaleSelect = page.locator('#scale-select');
@@ -569,7 +610,7 @@ async function runChecks(page) {
     `composite chord root should be orange, got ${compositeChordRootBg}`,
   );
 
-  await page.locator('.app-header__mode .segment-switcher__btn', { hasText: 'ライブラリ' }).click();
+  await page.locator('.app-header__mode .segment-switcher__btn[data-mode="library"]').click();
   const libraryPlay = page.locator('.library-view__play');
   assert((await libraryPlay.count()) >= 1, 'library form should show preview play buttons');
 
@@ -587,7 +628,7 @@ async function runChecks(page) {
     `library list scroll should persist on selection (${libraryScrollBefore} -> ${libraryScrollAfter})`,
   );
 
-  await page.locator('.app-header__mode .segment-switcher__btn', { hasText: '設定' }).click();
+  await page.locator('.app-header__mode .segment-switcher__btn[data-mode="settings"]').click();
   assert((await page.locator('.settings-view').count()) === 1, 'settings view missing');
   assert(
     (await page.locator('.settings-instrument-list__radio').count()) === 7,
@@ -598,7 +639,7 @@ async function runChecks(page) {
     'one instrument should be selected by default',
   );
 
-  await page.locator('.app-header__mode .segment-switcher__btn', { hasText: '練習' }).click();
+  await page.locator('.app-header__mode .segment-switcher__btn[data-mode="practice"]').click();
 
   await scaleSelect.selectOption('dorian');
   const tonePanel = page.locator('.tone-panel__tones').first();
@@ -616,6 +657,14 @@ async function runChecks(page) {
   assert(
     (await page.locator('.diatonic-chords__btn--play').count()) === 7,
     'each diatonic cell should show a play icon',
+  );
+  assert(
+    (await page.locator('.diatonic-chords__btn--repeat').count()) === 7,
+    'each diatonic cell should have a repeat button',
+  );
+  assert(
+    (await page.locator('.diatonic-chords__btn--repeat').first().textContent()) === '∞',
+    'diatonic repeat button should show infinity icon',
   );
   assert(
     (await page.locator('.diatonic-chords__btn--apply').count()) === 7,

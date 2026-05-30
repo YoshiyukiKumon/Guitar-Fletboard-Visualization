@@ -1,5 +1,5 @@
-import { isBuiltinChordId, isBuiltinScaleId } from './builtin-ids';
-import { getChordById, getScaleById } from './registry';
+import { isBuiltinChordId, isBuiltinScaleId, isBuiltinStrumPatternId } from './builtin-ids';
+import { getChordById, getScaleById, getStrumPatternById } from './registry';
 
 const ID_PATTERN = /^[a-z][a-z0-9-]*$/;
 
@@ -41,6 +41,10 @@ function chordIdTaken(id: string): boolean {
   return getChordById(id) !== undefined || isBuiltinChordId(id);
 }
 
+function strumPatternIdTaken(id: string): boolean {
+  return getStrumPatternById(id) !== undefined || isBuiltinStrumPatternId(id);
+}
+
 /** 新規カスタムスケール用 ID（名前から生成、重複時は連番） */
 export function generateCustomScaleId(name: string): string {
   const base = slugify(name) || `s${Date.now().toString(36)}`;
@@ -51,4 +55,10 @@ export function generateCustomScaleId(name: string): string {
 export function generateCustomChordId(name: string): string {
   const base = slugify(name) || `c${Date.now().toString(36)}`;
   return nextUniqueId('custom-chord', base, chordIdTaken);
+}
+
+/** 新規カスタムストロークパターン用 ID（名前から生成、重複時は連番） */
+export function generateCustomStrumPatternId(name: string): string {
+  const base = slugify(name) || `p${Date.now().toString(36)}`;
+  return nextUniqueId('custom-strum', base, strumPatternIdTaken);
 }
